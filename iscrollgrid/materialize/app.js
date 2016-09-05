@@ -75,7 +75,7 @@ $(function() {
                 }
                 return false;
             }) : testData;            
-            mScroll.reload();
+            mScroll.reload(false, true);
             prevFilter = filter;            
         }
     }      
@@ -205,7 +205,7 @@ $(function() {
                         
         fakeSortDesc = i.is(".sort-desc");        
         
-        mScroll.reload();        
+        mScroll.reload(false, true);        
         
         e.preventDefault();
     });
