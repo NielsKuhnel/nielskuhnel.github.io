@@ -205,7 +205,7 @@ $(function() {
                         
         fakeSortDesc = i.is(".sort-desc");        
         
-        mScroll.reload(false, true);        
+        mScroll.reload();        
         
         e.preventDefault();
     });

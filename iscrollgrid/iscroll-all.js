@@ -1667,13 +1667,14 @@ IScroll.prototype = {
 
 		this.on('scroll', this.reorderInfinite);
 	},
-      
-    reload: function(x, y) {
-        this.scrollTo(x ? 0 : this.x, y ? 0 : this.y);
+        
+    reload: function(resetX, resetY) {
+        this.scrollTo(resetX ? 0 : this.x, resetY ? 0 : this.y);
         for( var i = 0; i < this.infiniteParticipants.length; i++ ) {            
-            this.infiniteParticipants[i].scrollTo(x ? 0 : this.infiniteParticipants[i].x, y ? 0 : this.infiniteParticipants[i].y);
+            this.infiniteParticipants[i].scrollTo(resetX ? 0 : this.infiniteParticipants[i].x, resetY ? 0 : this.infiniteParticipants[i].y);        
         }
-        this._loadDataSlice(0, this.options.cacheSize);        
+                
+        this._loadDataSlice(resetY ? 0 : Math.max(this.cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer), this.options.cacheSize);              
     },
         
         
