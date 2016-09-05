@@ -67,7 +67,8 @@ $(function() {
             disableMouse: false,
             deceleration: 0.001,
             bounceTime: 400,
-            
+            click: true,
+
             cacheSize: 50,
         }
         
