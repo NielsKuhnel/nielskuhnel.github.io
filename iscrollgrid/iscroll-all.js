@@ -1678,9 +1678,10 @@ IScroll.prototype = {
                 _this.infiniteParticipants[i].updateCache(start, data);
                 _this.infiniteParticipants[i].reorderInfinite(true);                
             }            
+            
         };
         _this.updateCache(start, length);
-        _this.options.dataset.call(this, start, this.options.cacheSize, callback);                            
+        _this.options.dataset.call(this, start, this.options.cacheSize, callback);          
     },
 
     //Reloads the data for the cache at the current position, or optionally resets x and/or y positions
@@ -1690,7 +1691,7 @@ IScroll.prototype = {
             this.infiniteParticipants[i].scrollTo(resetX ? 0 : this.infiniteParticipants[i].x, resetY ? 0 : this.infiniteParticipants[i].y);                    
         }
                
-        this._loadDataSlice(resetY ? 0 : Math.max(this.cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer), this.options.cacheSize);              
+        this._loadDataSlice(resetY ? 0 : Math.max(this.cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer), this.options.cacheSize, true);              
     },
         
 
