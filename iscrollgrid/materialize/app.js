@@ -38,8 +38,7 @@ $(function() {
                     data.push(null);
                 }
             }                   
-            setCount(filtered.length);
-            console.log(count, data.length);
+            setCount(filtered.length);            
             callback(data);            
         }, Math.random()*600);	
     }
