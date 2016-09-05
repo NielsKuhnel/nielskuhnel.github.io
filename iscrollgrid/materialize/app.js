@@ -188,6 +188,9 @@ $(function() {
         e.preventDefault();
     });
 
+    $("#search").on("keydown", function(e) {
+        if( e.keyCode == 13) $(this).blur();
+    });
     $("#search").on("keydown", $.debounce(250, function() {
         setFilter($(this).val());        
     }));
@@ -209,4 +212,10 @@ $(function() {
         
         e.preventDefault();
     });
+    
+    // //Disable zoom on search field focus
+    // var $viewportMeta = $('meta[name="viewport"]');
+        // $('input, select, textarea').bind('focus blur', function(event) {
+        // $viewportMeta.attr('content', 'width=device-width, initial-scale=0.4, maximum-scale=1, user-scalable=' + (event.type == 'blur' ? 1 : 0));
+        // });
 });

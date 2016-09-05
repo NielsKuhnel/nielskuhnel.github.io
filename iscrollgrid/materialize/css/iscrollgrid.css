@@ -14,10 +14,7 @@
     }
     
     #grid ul.row {
-        background-color: white;
-        /*-webkit-box-shadow: 0px 0px 60px 30px rgba(255,255,255,1);
-        -moz-box-shadow: 0px 0px 60px 30px rgba(255,255,255,1);
-        box-shadow: 0px 0px 60px 30px rgba(255,255,255,1);*/        
+        background-color: white;        
     }
     
     #grid li {
@@ -50,7 +47,7 @@
         background-color: #fcfcfc;
     }      
     #tl, #t, #l, #m { overflow: hidden; background-color: white; }     
-    #l, #m { background-color: #fcfcfc; }     
+    #l, #m { background-color: #fcfcfc; -webkit-transform: translate3d(0,0,0);}     
         
     #tl {position:absolute;top:64px;left:0;width: 250px;height:50px;z-index: 4; clip: rect(-10px, 260px, 50px, -10px);  } /* Use clip to show that the box is 1 above the fixed left col, but 2 above the background. */
     #tl-inner { position:absolute;bottom:0;left:0;height: 50px; width: 100%; }
@@ -160,4 +157,4 @@ ul.row li.sortable:hover:not(.sorted) i.sort-icon { visibility: visible; color: 
 ul.row li.sorted { color: rgb(33,33,33); }
 ul.row li i.sort-icon { font-size: 16px; color: rgb(33,33,33); vertical-align: middle; margin-top: -4px;margin-right:6px;}
 ul.row li i.sort-desc { margin-top: -2px; transform: rotate(180deg);}
-ul.row li.sorted i.sort-icon { visibility: visible}-
+ul.row li.sorted i.sort-icon { visibility: visible;}

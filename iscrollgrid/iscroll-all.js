@@ -778,11 +778,10 @@ IScroll.prototype = {
 
 		var limit;
 		if ( this.options.infiniteElements ) {
-			this.options.infiniteLimit = typeof(this.options.infiniteLimit) == "number" && this.options.infiniteLimit >= 0 ? this.options.infiniteLimit : Math.floor(2147483645 / this.infiniteElementHeight);
+            this.options.infiniteLimit = typeof(this.options.infiniteLimit) == "number" && this.options.infiniteLimit >= 0 ? this.options.infiniteLimit : Math.floor(2147483645 / this.infiniteElementHeight);
 			limit = -this.options.infiniteLimit * this.infiniteElementHeight + this.wrapperHeight;
 		}
 		this.maxScrollY		= limit !== undefined ? limit : this.wrapperHeight - this.scrollerHeight;
-            
 /* REPLACE END: refresh */
 
 		this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;
@@ -1667,7 +1666,24 @@ IScroll.prototype = {
 
 		this.on('scroll', this.reorderInfinite);
 	},
+    
         
+    //Calls the options.dataset function with the arguments (start, length, callback), where callback is a function that expects the new data.
+    _loadDataSlice: function(start, length) {
+        var _this = this;
+        var callback = function(data) {
+            _this.updateCache(start, data);
+            _this.updateContent(_this.infiniteElements);
+            for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                
+                _this.infiniteParticipants[i].updateCache(start, data);
+                _this.infiniteParticipants[i].updateContent(_this.infiniteParticipants[i].infiniteElements);            
+            }            
+        };
+        _this.updateCache(start, length);
+        _this.options.dataset.call(this, start, this.options.cacheSize, callback);                            
+    },
+
+    //Reloads the data for the cache at the current position, or optionally resets x and/or y positions
     reload: function(resetX, resetY) {
         this.scrollTo(resetX ? 0 : this.x, resetY ? 0 : this.y);
         for( var i = 0; i < this.infiniteParticipants.length; i++ ) {            
@@ -1677,20 +1693,6 @@ IScroll.prototype = {
         this._loadDataSlice(resetY ? 0 : Math.max(this.cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer), this.options.cacheSize);              
     },
         
-        
-    _loadDataSlice: function(start, length) {
-        var _this = this;
-        var callback = function(data) {
-            _this.updateCache(start, data);
-            _this.updateContent(_this.infiniteElements);
-            for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                
-                _this.infiniteParticipants[i].updateCache(start, data);
-                _this.infiniteParticipants[i].updateContent(_this.infiniteParticipants[i].infiniteElements);            
-            }
-        };
-        _this.updateCache(start, length);
-        _this.options.dataset.call(this, start, this.options.cacheSize, callback);                            
-    },
 
 
 	// TO-DO: clean up the mess
@@ -1747,7 +1749,7 @@ IScroll.prototype = {
 		}
         
 		for ( var i = 0, l = els.length; i < l; i++ ) {            
-            this.options.dataFiller.call(this, els[i], this.infiniteCache[els[i]._phase], els[i]._phase >= this.options.infiniteLimit);            
+            this.options.dataFiller.call(this, els[i], this.infiniteCache[els[i]._phase], els[i]._phase >= this.options.infiniteLimit);
 		}
 	},
 
