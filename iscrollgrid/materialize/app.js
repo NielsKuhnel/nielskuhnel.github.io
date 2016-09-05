@@ -145,10 +145,11 @@ $(function() {
         var i = $("i.sort", this);    
         if( !$(this).is(".sorted") ) {            
             headers.removeClass("sorted");            
-            $(this).addClass("sorted");
-        } else {
-            i.toggleClass("sort-desc");
-        }        
+            $("i.sort-desc", headers).removeClass("sort-desc");
+            $(this).addClass("sorted");            
+        }
+        
+        i.toggleClass("sort-desc");             
         i.text(i.is(".sort-desc") ? "arrow_downward" : "arrow_upward");
     });
 });
