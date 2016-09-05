@@ -100,8 +100,8 @@
 .progress .indeterminate{background-color:#03a9f4}
 
 #search-container { 
-    top: 0px; right: 0px; margin: 15px 15px 0 15px; 
-    height: 50px;     
+    top: 0px; right: 0px; margin: 15px 20px 0 20px; 
+    height: 40px;     
     width: 0;
     -webkit-transition: width 0.5s ease-in-out;
     -moz-transition: width 0.2s ease-in-out;
@@ -120,9 +120,11 @@
     width: 100%;
 }
 
+#search-container.open #open-search { left: -36px; }
+
 #open-search {
     position: absolute;
-    left: -36px;
+    left: -27px;
     top: 0;
     font-size: 28px;
     color: rgb(117,117,117);    
@@ -141,7 +143,7 @@
 ul.row li i.sort { visibility: hidden; margin-left: -18px;}
 ul.row li.sorted i.sort { visibility: visible; }
 
-ul.row li a { color: rgb(117,117,117); }
+ul.row li a { color: rgb(117,117,117); display: inline-block; padding: 5px; }
 ul.row li.sorted a { color: rgb(33,33,33); }
 ul.row li i.sort { font-size: 16px; color: rgb(33,33,33); vertical-align: middle; margin-top: -4px;}
 ul.row li i.sort-desc { margin-top: -2px;}
