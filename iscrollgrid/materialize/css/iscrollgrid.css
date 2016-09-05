@@ -154,7 +154,7 @@
 ul.row li.sortable {cursor: pointer;}
 ul.row li i.sort-icon { visibility: hidden; margin-left: -18px; transition: transform .25s;}
 ul.row li.sorted i.sort { visibility: visible; }
-ul.row li.sortable:hover:not(.sorted) i.sort-icon { visibility: visible; color: rgb(117,117,117);}
+ul.row li.sortable:hover:not(.sorted) i.sort-icon { visibility: visible; color: rgb(189,189,189);}
 
 /* ul.row li a { color: rgb(117,117,117); display: inline-block; padding: 5px; } */
 ul.row li.sorted { color: rgb(33,33,33); }
