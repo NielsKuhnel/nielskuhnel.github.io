@@ -44,8 +44,7 @@ $(function() {
     }
 
     function updateContent (el, data, hide) {                
-        el.style.display = hide ? "none" : "";        
-        
+        el.style.display = hide ? "none" : "";                
         if( hide ) return;
 
         if( !data ) {                        
@@ -87,7 +86,8 @@ $(function() {
             return;
         }        
         prevCount = count;        
-        document.querySelector("#m > .scroller").style["height"] = count*50 + "px";
+        $("#m > .scroller").css("height", count*51 + "px");
+        $("#l > .scroller").css("height", count*51 + "px");
         mScroll.options.infiniteLimit = count;        
         lScroll.options.infiniteLimit = count;                
         
@@ -208,7 +208,7 @@ $(function() {
                         
         fakeSortDesc = i.is(".sort-desc");        
         
-        mScroll.reload();        
+        mScroll.reload(false, true);        
         
         e.preventDefault();
     });
