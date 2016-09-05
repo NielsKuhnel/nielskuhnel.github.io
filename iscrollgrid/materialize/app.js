@@ -138,4 +138,16 @@ $(function() {
         $("#search").val("");
         $("#search").blur();
     });
+
+    var headers = $(".row.head li");
+    headers.on("click", function() {
+        var i = $("i.sort", this);    
+        if( !$(this).is(".sorted") ) {            
+            headers.removeClass("sorted");            
+            $(this).addClass("sorted");
+        } else {
+            i.toggleClass("sort-desc");
+        }        
+        i.text(i.is(".sort-desc") ? "arrow_downward" : "arrow_upward");
+    });
 });
