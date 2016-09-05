@@ -5,8 +5,7 @@
     }
     
     #grid ul {  
-      display: table;
-      background-color: white;
+      display: table;      
       margin: 0;
       padding: 0;
       line-height: 0;
@@ -16,6 +15,7 @@
     
     #grid li {
         display: table-cell;
+        background-color: white;
         text-align: center;
         vertical-align: middle;
         font-family: Roboto, sans-serif;        
@@ -40,9 +40,10 @@
     }
         
     #grid {
-        position: relative;                    
+        position: relative;                            
     }      
     #tl, #t, #l, #m { overflow: hidden; background-color: white; }     
+    #l, #m { background-color: #fafafa; }     
         
     #tl {position:absolute;top:0;left:0;width: 250px;height:90px;z-index: 4; clip: rect(-10px, 260px, 90px, -10px);  } /* Use clip to show that the box is 1 above the fixed left col, but 2 above the background. */
     #tl-inner { position:absolute;bottom:0;left:0;height: 50px; width: 100%; }
@@ -74,7 +75,7 @@
         transform: translateZ(0);        
     }
 
-    ul.row.body.hover li { background-color: #eee;}      
+    /*ul.row.body.hover li { background-color: #eee;}*/
     
     #viewframe {
         width: 100%;

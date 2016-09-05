@@ -778,7 +778,7 @@ IScroll.prototype = {
 
 		var limit;
 		if ( this.options.infiniteElements ) {
-			this.options.infiniteLimit = this.options.infiniteLimit || Math.floor(2147483645 / this.infiniteElementHeight);
+			this.options.infiniteLimit = typeof(this.options.infiniteLimit) == "number" && this.options.infiniteLimit >= 0 ? this.options.infiniteLimit : Math.floor(2147483645 / this.infiniteElementHeight);
 			limit = -this.options.infiniteLimit * this.infiniteElementHeight + this.wrapperHeight;
 		}
 		this.maxScrollY		= limit !== undefined ? limit : this.wrapperHeight - this.scrollerHeight;
@@ -1668,10 +1668,12 @@ IScroll.prototype = {
 		this.on('scroll', this.reorderInfinite);
 	},
       
-    reload: function() {
-        this.refresh();
-        this.scrollTo(this.x, 0);
-        this._loadDataSlice(0, this.options.cacheSize);
+    reload: function(x, y) {
+        this.scrollTo(x ? 0 : this.x, y ? 0 : this.y);
+        for( var i = 0; i < this.infiniteParticipants.length; i++ ) {            
+            this.infiniteParticipants[i].scrollTo(x ? 0 : this.infiniteParticipants[i].x, y ? 0 : this.infiniteParticipants[i].y);
+        }
+        this._loadDataSlice(0, this.options.cacheSize);        
     },
         
         
@@ -1743,8 +1745,9 @@ IScroll.prototype = {
 			return;
 		}
         
-		for ( var i = 0, l = els.length; i < l; i++ ) {            
-            this.options.dataFiller.call(this, els[i], this.infiniteCache[els[i]._phase]);            
+		for ( var i = 0, l = els.length; i < l; i++ ) {
+            //console.log(els[i]._phase, this.options.infiniteLimit);
+            this.options.dataFiller.call(this, els[i], this.infiniteCache[els[i]._phase], els[i]._phase >= this.options.infiniteLimit);            
 		}
 	},
 

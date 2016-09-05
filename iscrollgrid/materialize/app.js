@@ -1,27 +1,24 @@
-$(function() {
-    
-    var fakeSortDesc = false;
-    var fakeSearch = "";
-    
-    var cols = 10;
-    var totalCount = 500;
+$(function() {        
+    var fakeSortDesc = false;    
 
+    var cols = 10;
+    
+    var testData = [];
+    for( var i = 0; i < 500; i++ ) {
+        var row = { id: i, cols: []};
+        for( var j = 0; j < cols; j++ ) {
+            row.cols[j] = "Item " + (i+1) + "." + (j + 1);
+        }
+        row.id = "row-" + i;
+        testData.push(row);
+    }
+    
+    
     var nextReq = 0, prevReq = 0, reqs = 0;    
 
-    var prevFilter = null;
     function requestData (start, count, callback) {
         var req = ++nextReq;
     
-        if( mScroll ) {
-            if( prevFilter === null || prevFilter != fakeSearch) {                 
-                prevFilter = fakeSearch;
-                totalCount = fakeSearch ? 24 : 500;
-                setCount(totalCount);
-                mScroll.reload();        
-                lScroll.reload();                            
-                return;
-            }
-        }
         ++reqs;
         document.getElementById("loader").style.opacity = 1;
                         
@@ -33,20 +30,24 @@ $(function() {
             prevReq = req;
             var data = [];                
             for( var i = start; i < start + count; i++) {
-                var x = fakeSortDesc ? totalCount - i : i + 1;
-                if( fakeSearch ) x *= 2;
-                var row = { id: i, cols: []};
-                for( var j = 0; j < cols; j++ ) {
-                    row.cols[j] = "Item " + (x) + "." + (j + 1);
-                }            
-                data.push(row); 
-            }       
-            callback(data);              
+                var ix = fakeSortDesc ? filtered.length - i - 1 : i;
+                if( ix >= 0 && ix < filtered.length ) {
+                    data.push(filtered[ix]); 
+                } else {
+                    data.push(null);
+                }
+            }                   
+            setCount(filtered.length);
+            callback(data);            
         }, Math.random()*1000);	
     }
 
-    function updateContent (el, data) {        
-        if( !data ) {
+    function updateContent (el, data, hide) {                
+        el.style.display = hide ? "none" : "";        
+        
+        if( hide ) return;
+
+        if( !data ) {            
             //Data is unavailable. Clear row. (It's probably being loaded.)
             for(var i = 0, n = el.children.length; i < n; i++ ) {        
                 el.children[i].innerHTML = "";
@@ -60,16 +61,40 @@ $(function() {
         }	    
     }
 
+    
+    var filtered = testData;
+    var prevFilter = "";
+    function setFilter(filter) {
+        if( filter != prevFilter ) {
+            filtered = filter ? testData.filter(function(d) {
+                for( var i = 0; i < d.cols.length; i++ ) {
+                    if( d.cols[i].indexOf(filter) != -1 ) {
+                        return true;
+                    }
+                }
+                return false;
+            }) : testData;            
+            mScroll.reload();
+            prevFilter = filter;            
+        }
+    }      
+
     //When the total count has changed. For example, when filtering.
+    var prevCount = -1;
     function setCount(count) {
-        if( count ) {
+        if( count == prevCount ) {
+            return;
+        }
+        console.log(count);
+        prevCount = count;
+        //if( count ) {
             document.querySelector("#m > .scroller").style["height"] = count*50 + "px";
             mScroll.options.infiniteLimit = count;        
             lScroll.options.infiniteLimit = count;        
-        } else {
+        /*} else {
             mScroll.options.infiniteLimit = Number.max;              
             lScroll.options.infiniteLimit = Number.max;   
-        }
+        }*/
         
         mScroll.refresh();
         lScroll.refresh();
@@ -147,11 +172,12 @@ $(function() {
     });
 
 
-    setCount(totalCount);
+    setCount(filtered.length);
 
-    $("#open-search").click(function() {
+    $("#open-search").click(function(e) {
         $("#search-container").addClass("open");
         $("#search").focus();
+        e.preventDefault();
     });
 
     $("#close-search").click(function() {
@@ -159,21 +185,16 @@ $(function() {
         $("#search").val("");
         $("#search").blur();
         
-        fakeSearch = "";
-        
-        mScroll.reload();        
-        lScroll.reload();   
+        setFilter("");
+        e.preventDefault();
     });
 
     $("#search").on("keydown", $.debounce(250, function() {
-        fakeSearch = $(this).val();
-        
-        mScroll.reload();        
-        lScroll.reload();   
+        setFilter($(this).val());        
     }));
 
     var headers = $(".row.head li");
-    headers.on("click", function() {
+    headers.on("click", function(e) {
         var i = $("i.sort", this);    
         if( !$(this).is(".sorted") ) {            
             headers.removeClass("sorted");            
@@ -187,6 +208,7 @@ $(function() {
         fakeSortDesc = i.is(".sort-desc");        
         
         mScroll.reload();        
-        lScroll.reload();        
+        
+        e.preventDefault();
     });
 });
