@@ -2,7 +2,7 @@
 <html>
 <head>
 
- <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">  -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> 
     
  <link href="css/materialize.min.css" rel="stylesheet"> 
  <link href="css/iscrollgrid.css" rel="stylesheet"> 
@@ -20,7 +20,13 @@
     <div class="section">                          
         <div id="viewframe" class="z-depth-1">    
             <!-- Width: 250, height: 50. Rows: 10, Cols: 5000 (shown 11, body: 10) -->    
-            <div id="grid">        
+            <div id="grid">   
+                <div center class="input-field secondary col s4" id="search-container">
+                    <a class="material-icons" id="open-search" href="#">search</a>
+                    <input id="search" type="text" placeholder="Search...">
+                    <label for="search"></label>
+                    <a class="material-icons waves-effect" id="close-search" href="#">clear</a>
+                </div>                        
                 <div id="tl" class="z-depth-1">
                     <div id="tl-inner">
                         <div class="scroller">
@@ -31,14 +37,6 @@
                     </div>
                 </div>
                 <div id="t" class="z-depth-1">
-                    
-                    <div center class="input-field secondary col s4" id="search-container">
-                        <a class="material-icons" id="open-search" href="#">search</a>
-                        <input id="search" type="text" placeholder="Search...">
-                        <label for="search"></label>
-                        <a class="material-icons waves-effect" id="close-search" href="#">clear</a>
-                    </div>                        
-    
                     <div id="t-inner">
                         <div class="scroller" style="width: 2250px;">
                             <ul class="row head">
