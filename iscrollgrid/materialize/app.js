@@ -34,13 +34,14 @@ $(function() {
                 var ix = fakeSortDesc ? filtered.length - i - 1 : i;
                 if( ix >= 0 && ix < filtered.length ) {
                     data.push(filtered[ix]); 
-                } else {
+                } else {                    
                     data.push(null);
                 }
             }                   
             setCount(filtered.length);
+            console.log(count, data.length);
             callback(data);            
-        }, Math.random()*1000);	
+        }, Math.random()*600);	
     }
 
     function updateContent (el, data, hide) {                
@@ -48,8 +49,8 @@ $(function() {
         
         if( hide ) return;
 
-        if( !data ) {            
-            //Data is unavailable. Clear row. (It's probably being loaded.)
+        if( !data ) {                        
+            //Data is unavailable. Clear row. (It's probably being loaded.)            
             for(var i = 0, n = el.children.length; i < n; i++ ) {        
                 el.children[i].innerHTML = "";
             }        

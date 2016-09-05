@@ -1654,7 +1654,7 @@ IScroll.prototype = {
         this.infiniteParticipants = this.options.infiniteParticipants || [];
 
 		this.options.cacheSize = this.options.cacheSize || 1000;
-		this.infiniteCacheBuffer = Math.round(this.options.cacheSize / 2);
+		this.infiniteCacheBuffer = Math.round(this.options.cacheSize / 4);
 
 		//this.infiniteCache = {};
 		this._loadDataSlice(0, this.options.cacheSize);
