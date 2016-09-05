@@ -2,6 +2,7 @@ $(function() {
     var fakeSortDesc = false;    
 
     var cols = 10;
+    var maxRows = 8;
     
     var testData = [];
     for( var i = 0; i < 500; i++ ) {
@@ -84,17 +85,15 @@ $(function() {
     function setCount(count) {
         if( count == prevCount ) {
             return;
-        }
-        console.log(count);
-        prevCount = count;
-        //if( count ) {
-            document.querySelector("#m > .scroller").style["height"] = count*50 + "px";
-            mScroll.options.infiniteLimit = count;        
-            lScroll.options.infiniteLimit = count;        
-        /*} else {
-            mScroll.options.infiniteLimit = Number.max;              
-            lScroll.options.infiniteLimit = Number.max;   
-        }*/
+        }        
+        prevCount = count;        
+        document.querySelector("#m > .scroller").style["height"] = count*50 + "px";
+        mScroll.options.infiniteLimit = count;        
+        lScroll.options.infiniteLimit = count;                
+        
+        
+        $("#l").css("height", (114 + Math.min(count, maxRows) * 51) + "px");
+        $("#m").css("height", (Math.min(count, maxRows) * 51) + "px");
         
         mScroll.refresh();
         lScroll.refresh();
@@ -180,7 +179,7 @@ $(function() {
         e.preventDefault();
     });
 
-    $("#close-search").click(function() {
+    $("#close-search").click(function(e) {
         $("#search-container").removeClass("open");
         $("#search").val("");
         $("#search").blur();
@@ -193,9 +192,9 @@ $(function() {
         setFilter($(this).val());        
     }));
 
-    var headers = $(".row.head li");
+    var headers = $(".row.head li.sortable");
     headers.on("click", function(e) {
-        var i = $("i.sort", this);    
+        var i = $("i.sort-icon", this);    
         if( !$(this).is(".sorted") ) {            
             headers.removeClass("sorted");            
             $("i.sort-desc", headers).removeClass("sort-desc");
@@ -203,8 +202,7 @@ $(function() {
         } else {
             i.toggleClass("sort-desc");             
         }
-                
-        i.text(i.is(".sort-desc") ? "arrow_upward" : "arrow_downward");
+                        
         fakeSortDesc = i.is(".sort-desc");        
         
         mScroll.reload();        

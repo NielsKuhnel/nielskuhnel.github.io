@@ -1745,8 +1745,7 @@ IScroll.prototype = {
 			return;
 		}
         
-		for ( var i = 0, l = els.length; i < l; i++ ) {
-            //console.log(els[i]._phase, this.options.infiniteLimit);
+		for ( var i = 0, l = els.length; i < l; i++ ) {            
             this.options.dataFiller.call(this, els[i], this.infiniteCache[els[i]._phase], els[i]._phase >= this.options.infiniteLimit);            
 		}
 	},
