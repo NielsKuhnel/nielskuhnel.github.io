@@ -1,12 +1,30 @@
 $(function() {
+    
+    var fakeSortDesc = false;
+    var fakeSearch = "";
+    
     var cols = 10;
+    var totalCount = 500;
 
-    var nextReq = 0, prevReq = 0, reqs = 0;
+    var nextReq = 0, prevReq = 0, reqs = 0;    
+
+    var prevFilter = null;
     function requestData (start, count, callback) {
         var req = ++nextReq;
+    
+        if( mScroll ) {
+            if( prevFilter === null || prevFilter != fakeSearch) {                 
+                prevFilter = fakeSearch;
+                totalCount = fakeSearch ? 24 : 500;
+                setCount(totalCount);
+                mScroll.reload();        
+                lScroll.reload();                            
+                return;
+            }
+        }
         ++reqs;
         document.getElementById("loader").style.opacity = 1;
-        
+                        
         setTimeout(function() {               
             if( --reqs == 0 ) {
                 document.getElementById("loader").style.opacity = 0;            
@@ -15,9 +33,11 @@ $(function() {
             prevReq = req;
             var data = [];                
             for( var i = start; i < start + count; i++) {
+                var x = fakeSortDesc ? totalCount - i : i + 1;
+                if( fakeSearch ) x *= 2;
                 var row = { id: i, cols: []};
                 for( var j = 0; j < cols; j++ ) {
-                    row.cols[j] = "Item " + (i + 1) + "." + (j + 1);
+                    row.cols[j] = "Item " + (x) + "." + (j + 1);
                 }            
                 data.push(row); 
             }       
@@ -127,7 +147,7 @@ $(function() {
     });
 
 
-    setCount(500);
+    setCount(totalCount);
 
     $("#open-search").click(function() {
         $("#search-container").addClass("open");
@@ -138,7 +158,19 @@ $(function() {
         $("#search-container").removeClass("open");
         $("#search").val("");
         $("#search").blur();
+        
+        fakeSearch = "";
+        
+        mScroll.reload();        
+        lScroll.reload();   
     });
+
+    $("#search").on("keydown", $.debounce(250, function() {
+        fakeSearch = $(this).val();
+        
+        mScroll.reload();        
+        lScroll.reload();   
+    }));
 
     var headers = $(".row.head li");
     headers.on("click", function() {
@@ -147,9 +179,14 @@ $(function() {
             headers.removeClass("sorted");            
             $("i.sort-desc", headers).removeClass("sort-desc");
             $(this).addClass("sorted");            
+        } else {
+            i.toggleClass("sort-desc");             
         }
+                
+        i.text(i.is(".sort-desc") ? "arrow_upward" : "arrow_downward");
+        fakeSortDesc = i.is(".sort-desc");        
         
-        i.toggleClass("sort-desc");             
-        i.text(i.is(".sort-desc") ? "arrow_downward" : "arrow_upward");
+        mScroll.reload();        
+        lScroll.reload();        
     });
 });

@@ -782,6 +782,7 @@ IScroll.prototype = {
 			limit = -this.options.infiniteLimit * this.infiniteElementHeight + this.wrapperHeight;
 		}
 		this.maxScrollY		= limit !== undefined ? limit : this.wrapperHeight - this.scrollerHeight;
+            
 /* REPLACE END: refresh */
 
 		this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;
@@ -1653,7 +1654,7 @@ IScroll.prototype = {
         this.infiniteParticipants = this.options.infiniteParticipants || [];
 
 		this.options.cacheSize = this.options.cacheSize || 1000;
-		this.infiniteCacheBuffer = Math.round(this.options.cacheSize / 4);
+		this.infiniteCacheBuffer = Math.round(this.options.cacheSize / 2);
 
 		//this.infiniteCache = {};
 		this._loadDataSlice(0, this.options.cacheSize);
@@ -1666,7 +1667,12 @@ IScroll.prototype = {
 
 		this.on('scroll', this.reorderInfinite);
 	},
-    
+      
+    reload: function() {
+        this.refresh();
+        this.scrollTo(this.x, 0);
+        this._loadDataSlice(0, this.options.cacheSize);
+    },
         
         
     _loadDataSlice: function(start, length) {
