@@ -159,7 +159,7 @@ ul.row li i.sort-icon { font-size: 16px; color: rgb(33,33,33); vertical-align: m
 ul.row li i.sort-desc { margin-top: -2px; transform: rotate(180deg);}
 ul.row li.sorted i.sort-icon { visibility: visible;}
 
-ul.row {
+/*ul.row {
     -webkit-transition: opacity .25s linear;
     -moz-transition: opacity .25s linear;
     transition: opacity .25s linear;    
@@ -167,3 +167,4 @@ ul.row {
 ul.row.loading { 
     opacity: 0.4; 
 }
+*/
