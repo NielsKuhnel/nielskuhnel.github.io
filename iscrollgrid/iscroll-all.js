@@ -588,7 +588,7 @@ IScroll.prototype = {
 		}
 		if ( newY > 0 || newY < this.maxScrollY ) {
 			newY = this.options.bounce ? this.y + deltaY / 3 : newY > 0 ? 0 : this.maxScrollY;
-		}
+		}              
 
 		this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
 		this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
@@ -781,7 +781,7 @@ IScroll.prototype = {
             this.options.infiniteLimit = typeof(this.options.infiniteLimit) == "number" && this.options.infiniteLimit >= 0 ? this.options.infiniteLimit : Math.floor(2147483645 / this.infiniteElementHeight);
 			limit = -this.options.infiniteLimit * this.infiniteElementHeight + this.wrapperHeight;
 		}
-		this.maxScrollY		= limit !== undefined ? limit : this.wrapperHeight - this.scrollerHeight;
+		this.maxScrollY		= limit !== undefined ? limit : this.wrapperHeight - this.scrollerHeight;        
 /* REPLACE END: refresh */
 
 		this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;

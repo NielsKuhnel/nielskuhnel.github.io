@@ -3,6 +3,7 @@ $(function() {
 
     var cols = 10;
     var maxRows = 8;
+    var fixed = 1;
     
     var spark = document.location.hash == "#spark";
     
@@ -69,16 +70,17 @@ $(function() {
         $(el).removeClass("loading");
         el.setAttribute("data-id", data.id);
         for(var i = 0, n = el.children.length; i < n; i++ ) {        
-            if( i == cols - 1 && spark) {                
-                //$(el.children[i]).sparkline(data.cols[i], { width: "100px", spotRadius: 0, fillColor: "#b3e5fc", lineColor: "#03a9f4", disableTooltips: true, disableHighlight: true});                
+            var ix = i < fixed ? i : i + fixed;
+            if( ix == cols - 1 && spark) {                                
+                //$(el.children[i]).sparkline(data.cols[ix], { width: "100px", spotRadius: 0, fillColor: "#b3e5fc", lineColor: "#03a9f4", disableTooltips: true, disableHighlight: true});                
                   var target = $("span.spark", el.children[i]);
                   if( target.length ) {
-                      target.text(data.cols[i]).change();                      
+                      target.text(data.cols[ix]).change();                      
                   } else {                       
-                      $("<span></span>").addClass("spark").appendTo(el.children[i]).text(data.cols[i]).peity("line", {width: 100});
+                      $("<span></span>").addClass("spark").appendTo(el.children[i]).text(data.cols[ix]).peity("line", {width: 100});
                   }                                   
             } else {
-                el.children[i].innerHTML = data.cols[i];
+                el.children[i].innerHTML = data.cols[ix];
             }
         }	    
     }
@@ -108,8 +110,8 @@ $(function() {
             return;
         }        
         prevCount = count;        
-        $("#m > .scroller").css("height", count*51 + "px");
-        $("#l > .scroller").css("height", count*51 + "px");
+        $("#l > .scroller").css("height", (114 + count*51) + "px");
+        $("#m > .scroller").css("height", count*51 + "px");        
         mScroll.options.infiniteLimit = count;        
         lScroll.options.infiniteLimit = count;                
         
@@ -124,7 +126,7 @@ $(function() {
 
     var $tl = document.getElementById("tl-inner");
     var $t = document.getElementById("t-inner");
-    var $l = document.getElementById("l");
+    var $l = document.getElementById("l-inner");
     var $m = document.getElementById("m");
 
     function defaultOptions(options) {
