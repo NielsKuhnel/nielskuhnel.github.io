@@ -1668,30 +1668,43 @@ IScroll.prototype = {
 	},
     
         
-    _loadDataSlice: function(start, length, reload) {
+    _loadDataSlice: function(start, length, loaded) {
         var _this = this;
         var callback = function(data) {
+            if( loaded) loaded();            
+            
             _this.updateCache(start, data);
             _this.reorderInfinite(true);
             
             for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                
                 _this.infiniteParticipants[i].updateCache(start, data);
                 _this.infiniteParticipants[i].reorderInfinite(true);                
-            }            
-            
+            }                                  
         };
         _this.updateCache(start, length);
-        _this.options.dataset.call(this, start, this.options.cacheSize, callback);          
+        _this.options.dataset.call(this, start, this.options.cacheSize, callback);                        
     },
 
+    _flashScrollbars: function() {
+        var _this = this;
+        var yScrollbar = _this.indicators[1];        
+        clearTimeout(this._flashScrollbarsTimeout);
+        yScrollbar.fade(1);
+        this._flashScrollbarsTimeout = setTimeout(function(){ yScrollbar.fade(0); }, 500);
+    },    
+
     //Reloads the data for the cache at the current position, or optionally resets x and/or y positions
-    reload: function(resetX, resetY) {
-        this.scrollTo(resetX ? 0 : this.x, resetY ? 0 : this.y);               
-        for( var i = 0; i < this.infiniteParticipants.length; i++ ) {            
-            this.infiniteParticipants[i].scrollTo(resetX ? 0 : this.infiniteParticipants[i].x, resetY ? 0 : this.infiniteParticipants[i].y);                    
-        }
-               
-        this._loadDataSlice(resetY ? 0 : Math.max(this.cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer), this.options.cacheSize, true);              
+    reload: function(resetX, resetY) {                         
+        var _this = this;
+        _this._loadDataSlice(resetY ? 0 : Math.max(this.cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer), this.options.cacheSize, 
+            function() {                
+                _this.scrollTo(resetX ? 0 : _this.x, resetY ? 0 : _this.y);               
+                for( var i = 0; i < _this.infiniteParticipants.length; i++ ) {            
+                    _this.infiniteParticipants[i].scrollTo(resetX ? 0 : _this.infiniteParticipants[i].x, resetY ? 0 : _this.infiniteParticipants[i].y);                    
+                }
+                
+                _this._flashScrollbars();                    
+            });              
     },
         
 
