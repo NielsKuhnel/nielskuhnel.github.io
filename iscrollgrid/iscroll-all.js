@@ -1762,10 +1762,12 @@ IScroll.prototype = {
 		if ( this.infiniteCache === undefined ) {
 			return;
 		}
-        
-		for ( var i = 0, l = els.length; i < l; i++ ) {            
-            this.options.dataFiller.call(this, els[i], this.infiniteCache[els[i]._phase], els[i]._phase >= this.options.infiniteLimit);
-		}
+        var _this = this;
+        rAF(function() {
+            for ( var i = 0, l = els.length; i < l; i++ ) {            
+                _this.options.dataFiller.call(_this, els[i], _this.infiniteCache[els[i]._phase], els[i]._phase >= _this.options.infiniteLimit);
+            }
+        });
 	},
 
 	updateCache: function (start, data) {
