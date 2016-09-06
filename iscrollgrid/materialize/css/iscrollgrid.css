@@ -158,3 +158,4 @@ ul.row li.sortable:hover:not(.sorted) i.sort-icon { visibility: visible; color: 
 ul.row li i.sort-icon { font-size: 16px; color: rgb(33,33,33); vertical-align: middle; margin-top: -4px;margin-right:6px;}
 ul.row li i.sort-desc { margin-top: -2px; transform: rotate(180deg);}
 ul.row li.sorted i.sort-icon { visibility: visible;}
+

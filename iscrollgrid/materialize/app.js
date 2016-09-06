@@ -7,8 +7,16 @@ $(function() {
     var testData = [];
     for( var i = 0; i < 500; i++ ) {
         var row = { id: i, cols: []};
-        for( var j = 0; j < cols; j++ ) {
+        for( var j = 0; j < cols; j++ ) {            
             row.cols[j] = "Item " + (i+1) + "." + (j + 1);
+            if( j == 8) {   
+                Math.seedrandom(i + 1);
+                var ys = [];
+                for( var k = 0; k < 6; k++) {
+                    ys.push(10*Math.random());                    
+                }
+                row.cols[j] = ys;                
+            }
         }
         row.id = "row-" + i;
         testData.push(row);
@@ -57,7 +65,11 @@ $(function() {
         
         el.setAttribute("data-id", data.id);
         for(var i = 0, n = el.children.length; i < n; i++ ) {        
-            el.children[i].innerHTML = data.cols[i];
+            if( i == 8) {                
+                $(el.children[i]).sparkline(data.cols[i], { width: "100px", spotRadius: 0, fillColor: "#b3e5fc", lineColor: "#03a9f4", disableTooltips: true, disableHighlight: true});
+            } else {
+                el.children[i].innerHTML = data.cols[i];
+            }
         }	    
     }
 
@@ -159,8 +171,7 @@ $(function() {
         probeType: 3,
 
         infiniteElements: '#m ul.row',
-        infiniteLimit: 50,
-        deceleration: 0.001,
+        infiniteLimit: 50,        
         dataset: requestData,
         dataFiller: updateContent,    
         infiniteParticipants: [ lScroll]      
@@ -211,11 +222,5 @@ $(function() {
         mScroll.reload(false, true);        
         
         e.preventDefault();
-    });
-    
-    // //Disable zoom on search field focus
-    // var $viewportMeta = $('meta[name="viewport"]');
-        // $('input, select, textarea').bind('focus blur', function(event) {
-        // $viewportMeta.attr('content', 'width=device-width, initial-scale=0.4, maximum-scale=1, user-scalable=' + (event.type == 'blur' ? 1 : 0));
-        // });
+    });   
 });
