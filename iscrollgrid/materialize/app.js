@@ -4,12 +4,14 @@ $(function() {
     var cols = 10;
     var maxRows = 8;
     
+    var spark = document.location.hash == "#spark";
+    
     var testData = [];
     for( var i = 0; i < 500; i++ ) {
         var row = { id: i, cols: []};
         for( var j = 0; j < cols; j++ ) {            
             row.cols[j] = "Item " + (i+1) + "." + (j + 1);
-            if( j == 8) {   
+            if( j == 8 && spark) {   
                 Math.seedrandom(i + 1);
                 var ys = [];
                 for( var k = 0; k < 6; k++) {
@@ -65,7 +67,7 @@ $(function() {
         
         el.setAttribute("data-id", data.id);
         for(var i = 0, n = el.children.length; i < n; i++ ) {        
-            if( i == 8) {                
+            if( i == 8 && spark) {                
                 $(el.children[i]).sparkline(data.cols[i], { width: "100px", spotRadius: 0, fillColor: "#b3e5fc", lineColor: "#03a9f4", disableTooltips: true, disableHighlight: true});
             } else {
                 el.children[i].innerHTML = data.cols[i];
