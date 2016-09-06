@@ -871,8 +871,13 @@ IScroll.prototype = {
 			this._animate(x, y, time, easing.fn);
 		}
         
-        //TODO: Update infinite scroll. Could be _execEvent("scroll"), but not sure what that would also trigger. This is not very modular.
-        if( this.reorderInfinite ) this.reorderInfinite();
+                
+        if( this.infiniteElements ) {            
+            //Call the infinite scroll handler, if infinite scrolling is enabled.
+            this._infiniteScrollHandler();
+        }
+
+// INSERT POINT: _scrollTo              
 	},
 
 	scrollToElement: function (el, time, offsetX, offsetY, easing) {
@@ -1654,22 +1659,45 @@ IScroll.prototype = {
 
 		this.options.cacheSize = this.options.cacheSize || 1000;
 		this.infiniteCacheBuffer = Math.round(this.options.cacheSize / 4);
+        this.linked = this.options.externallyUpdated;
 
-		//this.infiniteCache = {};
-		this._loadDataSlice(0, this.options.cacheSize);
-
+		this.infiniteCache = {};
+        this.updateContent(this.infiniteElements);
+        
+        
+		this._loadDataSlice(0, this.options.cacheSize);              
+        
+        
 		this.on('refresh', function () {
 			var elementsPerPage = Math.ceil(this.wrapperHeight / this.infiniteElementHeight);
 			this.infiniteUpperBufferSize = Math.floor((this.infiniteLength - elementsPerPage) / 2);
-			this.reorderInfinite();
+			            
+            this.reorderInfinite();            
 		});
 
-		this.on('scroll', this.reorderInfinite);
+        var _this = this;
+        
+        this.on('scroll', this._infiniteScrollHandler);        
 	},
     
-        
-    _loadDataSlice: function(start, length, loaded) {
+    _infiniteScrollHandler: function() {        
         var _this = this;
+        if( !_this.linked ) {            
+            _this.reorderInfinite();
+            for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                                                    
+                if( _this.infiniteParticipants[i].y != _this.y ) {                    
+                    _this.infiniteParticipants[i].scrollTo(_this.infiniteParticipants[i].x, _this.y);                    
+                }                    
+                _this.infiniteParticipants[i].reorderInfinite();                    
+            }  
+        }
+    },
+    
+        
+    _loadDataSlice: function(start, length, loaded) {        
+        var _this = this;
+        if( _this.linked ) return; //Anoter IScroll loads the data.
+        
         var callback = function(data) {
             if( loaded) loaded();            
             
@@ -1681,7 +1709,7 @@ IScroll.prototype = {
                 _this.infiniteParticipants[i].reorderInfinite(true);                
             }                                  
         };
-        _this.updateCache(start, length);
+        
         _this.options.dataset.call(this, start, this.options.cacheSize, callback);                        
     },
 
@@ -1710,7 +1738,7 @@ IScroll.prototype = {
 
 
 	// TO-DO: clean up the mess^2
-	reorderInfinite: function (updatePhase) {
+	reorderInfinite: function (updatePhase) {        
 		var center = -this.y + this.wrapperHeight / 2;
 
 		var minorPhase = Math.max(Math.floor(-this.y / this.infiniteElementHeight) - this.infiniteUpperBufferSize, 0),
@@ -1748,13 +1776,13 @@ IScroll.prototype = {
 			i++;
 		}
         
-		if ( !updatePhase && this.cachePhase != cachePhase && (cachePhase === 0 || minorPhase - this.infiniteCacheBuffer > 0) ) {
-			 this._loadDataSlice(Math.max(cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer, 0), this.options.cacheSize);
+		if ( !updatePhase && this.cachePhase != cachePhase && (cachePhase === 0 || minorPhase - this.infiniteCacheBuffer > 0) ) {			 
+             this._loadDataSlice(Math.max(cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer, 0), this.options.cacheSize);
 		}
 
 		this.cachePhase = cachePhase;
-
-		this.updateContent(updatePhase ? this.infiniteElements : update);
+        
+        this.updateContent(updatePhase ? this.infiniteElements : update);
 	},
 
 
@@ -1784,8 +1812,6 @@ IScroll.prototype = {
 		}
 
 	},
-
-
 	_animate: function (destX, destY, duration, easingFn) {
 		var that = this,
 			startX = this.x,

@@ -50,7 +50,7 @@ $(function() {
             }                   
             setCount(filtered.length);            
             callback(data);            
-        }, Math.random()*600);	
+        }, Math.random()*750);	        
     }
 
     function updateContent (el, data, hide) {                
@@ -58,6 +58,7 @@ $(function() {
         if( hide ) return;
 
         if( !data ) {                        
+            $(el).addClass("loading");
             //Data is unavailable. Clear row. (It's probably being loaded.)            
             for(var i = 0, n = el.children.length; i < n; i++ ) {        
                 el.children[i].innerHTML = "";
@@ -65,10 +66,17 @@ $(function() {
             return;
         }	
         
+        $(el).removeClass("loading");
         el.setAttribute("data-id", data.id);
         for(var i = 0, n = el.children.length; i < n; i++ ) {        
             if( i == 8 && spark) {                
-                $(el.children[i]).sparkline(data.cols[i], { width: "100px", spotRadius: 0, fillColor: "#b3e5fc", lineColor: "#03a9f4", disableTooltips: true, disableHighlight: true});
+                //$(el.children[i]).sparkline(data.cols[i], { width: "100px", spotRadius: 0, fillColor: "#b3e5fc", lineColor: "#03a9f4", disableTooltips: true, disableHighlight: true});                
+                  var target = $("span.spark", el.children[i]);
+                  if( target.length ) {
+                      target.text(data.cols[i]).change();                      
+                  } else {                       
+                      $("<span>").addClass("spark").appendTo(el.children[i]).text(data.cols[i]).peity("line", {width: 100});
+                  }                                   
             } else {
                 el.children[i].innerHTML = data.cols[i];
             }
@@ -152,10 +160,9 @@ $(function() {
       scrollY: true,
       probeType: 3,
       
-        infiniteElements: '#l ul.row',
-        infiniteLimit: 50,    
-        dataset: function() { /*Do nothing. Middle scroller updates. */},
-        dataFiller: updateContent
+        infiniteElements: '#l ul.row',        
+        dataFiller: updateContent,
+        externallyUpdated: true
     }));
     lScroll.on("scroll", function(){
       mScroll.scrollTo(mScroll.x, this.y);
@@ -176,11 +183,10 @@ $(function() {
         infiniteLimit: 50,        
         dataset: requestData,
         dataFiller: updateContent,    
-        infiniteParticipants: [ lScroll]      
+        infiniteParticipants: [lScroll]      
     }));
     mScroll.on("scroll", function(){
-      tScroll.scrollTo(this.x, 0);  
-      lScroll.scrollTo(0, this.y);
+      tScroll.scrollTo(this.x, 0);        
     });
 
 
