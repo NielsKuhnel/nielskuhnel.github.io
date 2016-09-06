@@ -55,7 +55,7 @@
     #t { position:absolute;top:0;left:0;height: 114px; width: 100%; padding-left: 200px; z-index: 3;}
     #card-top { position:absolute;top:0;left:0;height: 50px; width: 100%;  }
     #t-inner { position:absolute;bottom:0;left:0;height: 50px; width: 100%; padding-left: 200px;}
-        #t-inner .scroller {width:1800px;}          
+        #t-inner .scroller {width:2000px;}          
 
     #l { position:absolute;top:0;left: 0; width: 200px; height: 100%; z-index: 2;padding-top: 114px;}
         #l .scroller {height: 500px; width: 200px;}

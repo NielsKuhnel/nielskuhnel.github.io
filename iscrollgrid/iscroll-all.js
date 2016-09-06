@@ -698,8 +698,8 @@ IScroll.prototype = {
         var speedX = momentumX ? (Math.max(this.maxScrollX, Math.min(0,newX)) - Math.max(this.maxScrollX, Math.min(this.x,0)))/momentumX.duration : 0;
         var speedY = momentumY ? (Math.max(this.maxScrollY, Math.min(0,newY)) - Math.max(this.maxScrollY, Math.min(this.y,0)))/momentumY.duration : 0;
 
-        var xout = Math.abs(speedX) < 0.05 || (this.x >= 0 || this.x <= this.maxScrollX);
-        var yout = Math.abs(speedY) < 0.05 || (this.y >= 0 || this.y <= this.maxScrollY);
+        var xout = Math.abs(speedX) < 0.01 || (this.x >= 0 || this.x <= this.maxScrollX);
+        var yout = Math.abs(speedY) < 0.01 || (this.y >= 0 || this.y <= this.maxScrollY);
         // reset if we are outside of the boundaries        
 		if ( (xout && yout) && this.resetPosition(this.options.bounceTime) ) {			
             return;
@@ -1684,9 +1684,10 @@ IScroll.prototype = {
         var _this = this;
         if( !_this.linked ) {            
             _this.reorderInfinite();
-            for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                                                    
-                if( _this.infiniteParticipants[i].y != _this.y ) {                    
-                    _this.infiniteParticipants[i].scrollTo(_this.infiniteParticipants[i].x, _this.y);                    
+            for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                                                           
+                var newY = _this.y >= 0 ? 0 : _this.y <= _this.maxScrollY ? _this.maxScrollY : _this.y;
+                if( _this.infiniteParticipants[i].y != newY ) {                    
+                    _this.infiniteParticipants[i].scrollTo(_this.infiniteParticipants[i].x, newY);                    
                 }                    
                 _this.infiniteParticipants[i].reorderInfinite();                    
             }  

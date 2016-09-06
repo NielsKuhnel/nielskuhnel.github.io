@@ -11,7 +11,7 @@ $(function() {
         var row = { id: i, cols: []};
         for( var j = 0; j < cols; j++ ) {            
             row.cols[j] = "Item " + (i+1) + "." + (j + 1);
-            if( j == 8 && spark) {   
+            if( j == cols - 1 && spark) {   
                 Math.seedrandom(i + 1);
                 var ys = [];
                 for( var k = 0; k < 6; k++) {
@@ -69,13 +69,13 @@ $(function() {
         $(el).removeClass("loading");
         el.setAttribute("data-id", data.id);
         for(var i = 0, n = el.children.length; i < n; i++ ) {        
-            if( i == 8 && spark) {                
+            if( i == cols - 1 && spark) {                
                 //$(el.children[i]).sparkline(data.cols[i], { width: "100px", spotRadius: 0, fillColor: "#b3e5fc", lineColor: "#03a9f4", disableTooltips: true, disableHighlight: true});                
                   var target = $("span.spark", el.children[i]);
                   if( target.length ) {
                       target.text(data.cols[i]).change();                      
                   } else {                       
-                      $("<span>").addClass("spark").appendTo(el.children[i]).text(data.cols[i]).peity("line", {width: 100});
+                      $("<span></span>").addClass("spark").appendTo(el.children[i]).text(data.cols[i]).peity("line", {width: 100});
                   }                                   
             } else {
                 el.children[i].innerHTML = data.cols[i];
@@ -152,7 +152,10 @@ $(function() {
       probeType: 3
     }));
     tScroll.on("scroll", function(){
-      mScroll.scrollTo(this.x, mScroll.y);  
+        var newX = this.x >= 0 ? 0 : this.x <= this.maxScrollX ? this.maxScrollX : this.x;
+        if( mScroll.x != newX ) { 
+            mScroll.scrollTo(newX, mScroll.y);  
+        }
     });
 
     var lScroll = new IScroll($l, defaultOptions({
@@ -165,7 +168,10 @@ $(function() {
         externallyUpdated: true
     }));
     lScroll.on("scroll", function(){
-      mScroll.scrollTo(mScroll.x, this.y);
+        var newY = this.y >= 0 ? 0 : this.y <= this.maxScrollY ? this.maxScrollY : this.y;
+        if( newY != mScroll.y ) {
+            mScroll.scrollTo(mScroll.x, newY);
+        }
     });
 
     var mScroll = new IScroll($m, defaultOptions({
@@ -186,7 +192,10 @@ $(function() {
         infiniteParticipants: [lScroll]      
     }));
     mScroll.on("scroll", function(){
-      tScroll.scrollTo(this.x, 0);        
+        var newX = this.x >= 0 ? 0 : this.x <= this.maxScrollX ? this.maxScrollX : this.x;
+        if( tScroll.x != newX ) { 
+            tScroll.scrollTo(newX, 0);        
+        }
     });
 
 
