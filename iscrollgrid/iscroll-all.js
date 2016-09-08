@@ -495,16 +495,7 @@ IScroll.prototype = {
 
 		this.startTime = utils.getTime();
 
-		if ( this.options.useTransition && this.isInTransition ) {
-			this._transitionTime();
-			this.isInTransition = false;
-			pos = this.getComputedPosition();
-			this._translate(Math.round(pos.x), Math.round(pos.y));
-			this._execEvent('scrollEnd');
-		} else if ( !this.options.useTransition && this.isAnimating ) {
-			this.isAnimating = false;
-			this._execEvent('scrollEnd');
-		}
+		this._stop();
 
 		this.startX    = this.x;
 		this.startY    = this.y;
@@ -515,6 +506,19 @@ IScroll.prototype = {
 
 		this._execEvent('beforeScrollStart');
 	},
+    
+    _stop: function() {
+        if ( this.options.useTransition && this.isInTransition ) {
+			this._transitionTime();
+			this.isInTransition = false;
+			pos = this.getComputedPosition();
+			this._translate(Math.round(pos.x), Math.round(pos.y));
+			this._execEvent('scrollEnd');
+		} else if ( !this.options.useTransition && this.isAnimating ) {
+			this.isAnimating = false;
+			this._execEvent('scrollEnd');
+		}
+    },
 
 	_move: function (e) {
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
@@ -627,7 +631,8 @@ IScroll.prototype = {
 		if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
 			e.preventDefault();
 		}
-
+        
+        
 		var point = e.changedTouches ? e.changedTouches[0] : e,
 			momentumX,
 			momentumY,
@@ -655,6 +660,10 @@ IScroll.prototype = {
 				utils.click(e);
 			}
 
+            this.resetPosition(this.options.bounceTime)
+            if( this._linkedScroller ) {
+                this._linkedScroller.resetPosition(this._linkedScroller.options.bounceTime);
+            }
 			this._execEvent('scrollCancel');
 			return;
 		}
@@ -693,7 +702,7 @@ IScroll.prototype = {
 
 // INSERT POINT: _end
 
-        //TODO: freeScroll shouldn't be stopped while we have momentum in at least one direction, just because we go out of bounds in another. Only do the resetPosition thing when both directions are out of bound, and no momentum exists. This is heuristical, but kind of allright, isn't it?
+        //TODO: freeScroll shouldn't be stopped while we have momentum in at least one direction, just because we go out of bounds in another. Only do the resetPosition thing when both directions are out of bound, and no momentum exists. This seems to work allright.
             
         var speedX = momentumX ? (Math.max(this.maxScrollX, Math.min(0,newX)) - Math.max(this.maxScrollX, Math.min(this.x,0)))/momentumX.duration : 0;
         var speedY = momentumY ? (Math.max(this.maxScrollY, Math.min(0,newY)) - Math.max(this.maxScrollY, Math.min(this.y,0)))/momentumY.duration : 0;
@@ -1644,6 +1653,53 @@ IScroll.prototype = {
             e.stopPropagation();            
         }
 	},
+    
+    synchronize: function(other) {                
+        
+        var _this = this;
+        var x = _this.options.scrollX && other.options.scrollX;
+        var y = _this.options.scrollY && other.options.scrollY;
+        var eventLock = false;        
+    
+        var scrollTo = function(src, target) {             
+            src._scrollSlave = false;
+            target._scrollSlave = true;
+            if( target.linked ) {
+                return; //The scroll handler is special in this case.
+            }
+            
+            var newX = src.x >= 0 ? 0 : src.x <= src.maxScrollX ? src.maxScrollX : src.x;
+            var newY = src.y >= 0 ? 0 : src.y <= src.maxScrollY ? src.maxScrollY : src.y;            
+            if( (x && target.x != newX) || (y && target.y != newY) ) {                         
+                target.scrollTo(x ? newX : target.x, y ? newY : target.y);  
+            }            
+        };
+                
+        var syncEvents = function(src, target) {  
+            target._linkedScroller = src;    
+            ["scrollEnd", "scrollCancel", "scrollStart", "beforeScrollStart"].forEach(function(x) {                    
+                src.on(x, function() {
+                    if( !eventLock ) {                            
+                        if( x == "beforeScrollStart") {                            
+                            target._stop();                            
+                        };
+                        try {
+                            eventLock = true;
+                            target._execEvent(x);
+                        } finally {
+                            eventLock = false;
+                        }
+                    }                        
+                });
+            });
+        };                
+        
+        syncEvents(_this, other);
+        syncEvents(other, _this);              
+        
+        _this.on("scroll", function() { scrollTo(_this, other); });        
+        other.on("scroll", function() { scrollTo(other, _this); });
+    },
 
 	_initInfinite: function () {
 		var el = this.options.infiniteElements;
@@ -1678,6 +1734,11 @@ IScroll.prototype = {
         var _this = this;
         
         this.on('scroll', this._infiniteScrollHandler);        
+        
+        for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                
+            this.synchronize(this.infiniteParticipants[i]);
+        }
+        
 	},
     
     _infiniteScrollHandler: function() {        

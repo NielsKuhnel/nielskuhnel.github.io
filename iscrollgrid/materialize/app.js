@@ -151,13 +151,7 @@ $(function() {
       scrollX: true,
       scrollY: false,
       probeType: 3
-    }));
-    tScroll.on("scroll", function(){
-        var newX = this.x >= 0 ? 0 : this.x <= this.maxScrollX ? this.maxScrollX : this.x;
-        if( mScroll.x != newX ) { 
-            mScroll.scrollTo(newX, mScroll.y);  
-        }
-    });
+    }));    
 
     var lScroll = new IScroll($l, defaultOptions({
       scrollX: false,
@@ -192,12 +186,8 @@ $(function() {
         dataFiller: updateContent,    
         infiniteParticipants: [lScroll]      
     }));
-    mScroll.on("scroll", function(){
-        var newX = this.x >= 0 ? 0 : this.x <= this.maxScrollX ? this.maxScrollX : this.x;
-        if( tScroll.x != newX ) { 
-            tScroll.scrollTo(newX, 0);        
-        }
-    });
+    
+    mScroll.synchronize(tScroll);
 
 
     setCount(filtered.length);
