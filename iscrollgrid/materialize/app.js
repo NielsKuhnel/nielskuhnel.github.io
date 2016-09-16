@@ -7,6 +7,7 @@ $(function() {
     var sparkIndex = document.location.hash == "#spark" ? 3 : -1;      
     
     var testData = [];
+    Math.seedrandom(1337);    
     for( var i = 0; i < 500; i++ ) {
         var row = { id: i, cols: []};
         for( var j = 0; j < cols; j++ ) {            
@@ -18,6 +19,8 @@ $(function() {
                     ys.push(10*Math.random());                    
                 }
                 row.cols[j] = ys;                
+            } else if( j == 2 ) {
+                row.cols[j] = Math.round(100*Math.random());
             }
         }
         row.id = "row-" + i;
@@ -26,17 +29,15 @@ $(function() {
     
     
     var nextReq = 0, prevReq = 0, reqs = 0;    
-
-    function requestData (start, count, callback) {
-        var req = ++nextReq;
     
-        ++reqs;
-        document.getElementById("loader").style.opacity = 1;
-                        
+    function requestData (start, count, callback) {
+        var req = ++nextReq;        
+        ++reqs;        
+        document.getElementById("loader").style.opacity = 1;                        
         setTimeout(function() {               
             if( --reqs == 0 ) {
                 document.getElementById("loader").style.opacity = 0;            
-            }
+            }            
             if( req <= prevReq ) return;
             prevReq = req;
             var data = [];                
@@ -48,8 +49,9 @@ $(function() {
                     data.push(null);
                 }
             }                   
-            setCount(filtered.length);            
-            callback(data);            
+            setCount(filtered.length);             
+            callback(data);     
+            if( start > 0 ) skipSome = true;            
         }, Math.random()*750);	        
     }
 
@@ -57,18 +59,19 @@ $(function() {
         el.style.display = hide ? "none" : "";                
         if( hide ) return;
 
-        if( !data ) {                        
+        if( !data ) {            
             $(el).addClass("loading");
             //Data is unavailable. Clear row. (It's probably being loaded.)            
             for(var i = 0, n = el.children.length; i < n; i++ ) {        
                 el.children[i].innerHTML = "";
+                el.children[i].style.background = "";
             }        
             return;
         }	
         
         $(el).removeClass("loading");
         el.setAttribute("data-id", data.id);
-        for(var i = 0, n = el.children.length; i < n; i++ ) {        
+        for(var i = 0, n = el.children.length; i < n; i++ ) {                    
             var ix = i < fixed ? i : i + fixed;
             if( ix == sparkIndex ) {                                
                 //$(el.children[i]).sparkline(data.cols[ix], { width: "100px", spotRadius: 0, fillColor: "#b3e5fc", lineColor: "#03a9f4", disableTooltips: true, disableHighlight: true});                
@@ -78,6 +81,12 @@ $(function() {
                   } else {                       
                       $("<span></span>").addClass("spark").appendTo(el.children[i]).text(data.cols[ix]).peity("line", {width: 100});
                   }                                   
+            } else if( ix == 2 ) {
+                var w = 100 * (data.cols[ix] - 0)/100;
+                el.children[i].innerHTML = data.cols[ix];
+                el.children[i].style.background = "linear-gradient(to right, #03a9f4 0%, #b3e5fc " + w + "%, white " + w + "%)";                
+                //el.children[i].style.background = "linear-gradient(to right, #03a9f4 0%, #03a9f4 " + w + "%, white " + w + "%)";                
+                //el.children[i].innerHTML = "<div class='bar' style='width:" + w + "%'></div><div class='text'>" +  data.cols[ix] + "</div>";
             } else {
                 el.children[i].innerHTML = data.cols[ix];
             }
@@ -91,7 +100,7 @@ $(function() {
         if( filter != prevFilter ) {
             filtered = filter ? testData.filter(function(d) {
                 for( var i = 0; i < d.cols.length; i++ ) {
-                    if( d.cols[i].indexOf(filter) != -1 ) {
+                    if( (""+d.cols[i]).indexOf(filter) != -1 ) {
                         return true;
                     }
                 }
@@ -134,9 +143,7 @@ $(function() {
             disableMouse: false,
             deceleration: 0.001,
             bounceTime: 400,
-            click: true,
-
-            cacheSize: 50,
+            click: true            
         }
         
         for(var k in options) {
@@ -153,22 +160,6 @@ $(function() {
       probeType: 3
     }));    
 
-    var lScroll = new IScroll($l, defaultOptions({
-      scrollX: false,
-      scrollY: true,
-      probeType: 3,
-      
-        infiniteElements: '#l ul.row',        
-        dataFiller: updateContent,
-        externallyUpdated: true
-    }));
-    lScroll.on("scroll", function(){
-        var newY = this.y >= 0 ? 0 : this.y <= this.maxScrollY ? this.maxScrollY : this.y;
-        if( newY != mScroll.y ) {
-            mScroll.scrollTo(mScroll.x, newY);
-        }
-    });
-
     var mScroll = new IScroll($m, defaultOptions({
         scrollX: true,
         scrollY: true,
@@ -180,12 +171,28 @@ $(function() {
         fadeScrollbars: true,
         probeType: 3,
 
-        infiniteElements: '#m ul.row',
-        infiniteLimit: 50,        
-        dataset: requestData,
-        dataFiller: updateContent,    
-        infiniteParticipants: [lScroll]      
+        infiniteScroll: {
+            elements: '#m ul.row',
+            cacheSize: 50,
+            dataSource: requestData,
+            updater: updateContent
+        }
     }));
+    
+    var lScroll = new IScroll($l, defaultOptions({
+      scrollX: false,
+      scrollY: true,
+      probeType: 3,
+              
+        infiniteScroll: { 
+            elements: '#l ul.row', 
+            linkWith: mScroll,
+            updater: updateContent
+        },        
+        externallyUpdated: true
+    }));
+
+    
     
     mScroll.synchronize(tScroll);
 

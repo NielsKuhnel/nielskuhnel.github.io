@@ -1,0 +1,10 @@
+virtualScroll: {
+    factory: function(){},
+    updater: function(els) {},
+    [
+    dataSource: function(start, count, callback) {} //callback = function(data, totalCount){},
+    cacheSize: 1000    
+    |
+    linkWith: otherScroller //This other scroller will load data and maintain cache.
+    ]
+}

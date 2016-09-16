@@ -380,7 +380,7 @@ function IScroll (el, options) {
 
 	this.options.invertWheelDirection = this.options.invertWheelDirection ? -1 : 1;
 
-	if ( this.options.infiniteElements ) {
+	if ( this.options.infiniteScroll ) {
 		this.options.probeType = 3;
 	}
 	this.options.infiniteUseTransform = this.options.infiniteUseTransform && this.options.useTransform;
@@ -416,7 +416,7 @@ IScroll.prototype = {
 			this._initIndicators();
 		}
 
-		if ( this.options.mouseWheel ) {
+		if ( this.options.mouseWheel ) {            
 			this._initWheel();
 		}
 
@@ -428,7 +428,7 @@ IScroll.prototype = {
 			this._initKeys();
 		}
 
-		if ( this.options.infiniteElements ) {
+		if ( this.options.infiniteScroll ) {
 			this._initInfinite();
 		}
 
@@ -786,9 +786,9 @@ IScroll.prototype = {
 		this.maxScrollX		= this.wrapperWidth - this.scrollerWidth;
 
 		var limit;
-		if ( this.options.infiniteElements ) {
-            this.options.infiniteLimit = typeof(this.options.infiniteLimit) == "number" && this.options.infiniteLimit >= 0 ? this.options.infiniteLimit : Math.floor(2147483645 / this.infiniteElementHeight);
-			limit = -this.options.infiniteLimit * this.infiniteElementHeight + this.wrapperHeight;
+		if ( this.options.infiniteScroll ) {            
+            this.options.totalCount = typeof(this.options.totalCount) == "number" && this.options.totalCount >= 0 ? this.options.totalCount : Math.floor(2147483645 / this.infiniteElementHeight);
+			limit = -this.options.infiniteScroll.totalCount * this.infiniteElementHeight + this.wrapperHeight;
 		}
 		this.maxScrollY		= limit !== undefined ? limit : this.wrapperHeight - this.scrollerHeight;        
 /* REPLACE END: refresh */
@@ -820,7 +820,7 @@ IScroll.prototype = {
 
 	},
 
-	on: function (type, fn) {
+	on: function (type, fn) {       
 		if ( !this._events[type] ) {
 			this._events[type] = [];
 		}
@@ -881,7 +881,7 @@ IScroll.prototype = {
 		}
         
                 
-        if( this.infiniteElements ) {            
+        if( this.options.infiniteScroll ) {                    
             //Call the infinite scroll handler, if infinite scrolling is enabled.
             this._infiniteScrollHandler();
         }
@@ -1166,7 +1166,7 @@ IScroll.prototype = {
 		utils.addEvent(this.wrapper, 'wheel', this);
 		utils.addEvent(this.wrapper, 'mousewheel', this);
 		utils.addEvent(this.wrapper, 'DOMMouseScroll', this);
-
+        
 		this.on('destroy', function () {
 			clearTimeout(this.wheelTimeout);
 			this.wheelTimeout = null;
@@ -1664,7 +1664,7 @@ IScroll.prototype = {
         var scrollTo = function(src, target) {             
             src._scrollSlave = false;
             target._scrollSlave = true;
-            if( target.linked ) {
+            if( target.linkedWith ) {
                 return; //The scroll handler is special in this case.
             }
             
@@ -1702,7 +1702,11 @@ IScroll.prototype = {
     },
 
 	_initInfinite: function () {
-		var el = this.options.infiniteElements;
+        var options = this.options.infiniteScroll;        
+        this.linkedWith = options.linkWith;       
+        var linkedOptions = this.linkedWith && this.linkedWith.options.infiniteScroll;
+        
+		var el = options.elements;
 
 		this.infiniteElements = typeof el == 'string' ? document.querySelectorAll(el) : el;
 		this.infiniteLength = this.infiniteElements.length;
@@ -1710,47 +1714,41 @@ IScroll.prototype = {
 		this.infiniteElementHeight = utils.getRect(this.infiniteMaster).height;
 		this.infiniteHeight = this.infiniteLength * this.infiniteElementHeight;
         
-        //Other infinite scrollers that update with this one. Usefull for linked scroll scenarios.
-        this.infiniteParticipants = this.options.infiniteParticipants || [];
+        this.linkedScrollers = [];
+                
+        options.totalCount =  (linkedOptions && linkedOptions.totalCount) || options.totalCount || 10000;        
+		options.cacheSize = (linkedOptions && linkedOptions.cacheSize) || options.cacheSize || 1000;        
+		this.infiniteCacheBuffer = Math.round(options.cacheSize / 4);        
 
-		this.options.cacheSize = this.options.cacheSize || 1000;
-		this.infiniteCacheBuffer = Math.round(this.options.cacheSize / 4);
-        this.linked = this.options.externallyUpdated;
-
-		this.infiniteCache = {};
-        this.updateContent(this.infiniteElements);
+        if( this.linkedWith != null) {
+            this.infiniteCache = this.linkedWith.infiniteCache;            
+            this.linkedWith.linkedScrollers.push(this);
+            this.linkedWith.synchronize(this);
+        } else {
+            this.infiniteCache = {};
+        }
         
         
-		this._loadDataSlice(0, this.options.cacheSize);              
-        
-        
-		this.on('refresh', function () {
+		this.on('refresh', function () {            
 			var elementsPerPage = Math.ceil(this.wrapperHeight / this.infiniteElementHeight);
-			this.infiniteUpperBufferSize = Math.floor((this.infiniteLength - elementsPerPage) / 2);
-			            
+			this.infiniteUpperBufferSize = Math.floor((this.infiniteLength - elementsPerPage) / 2);			            
             this.reorderInfinite();            
 		});
-
-        var _this = this;
         
-        this.on('scroll', this._infiniteScrollHandler);        
-        
-        for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                
-            this.synchronize(this.infiniteParticipants[i]);
-        }
+        this.on('scroll', this._infiniteScrollHandler);               
         
 	},
     
     _infiniteScrollHandler: function() {        
         var _this = this;
-        if( !_this.linked ) {            
+        if( !_this.linkedWith ) {            
             _this.reorderInfinite();
-            for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                                                           
+            for(var i = 0; i < _this.linkedScrollers.length; i++ ) {                                                           
                 var newY = _this.y >= 0 ? 0 : _this.y <= _this.maxScrollY ? _this.maxScrollY : _this.y;
-                if( _this.infiniteParticipants[i].y != newY ) {                    
-                    _this.infiniteParticipants[i].scrollTo(_this.infiniteParticipants[i].x, newY);                    
+                if( _this.linkedScrollers[i].y != newY ) {                    
+                    _this.linkedScrollers[i].scrollTo(_this.linkedScrollers[i].x, newY);                    
                 }                    
-                _this.infiniteParticipants[i].reorderInfinite();                    
+                _this.linkedScrollers[i].reorderInfinite();                    
             }  
         }
     },
@@ -1758,21 +1756,21 @@ IScroll.prototype = {
         
     _loadDataSlice: function(start, length, loaded) {        
         var _this = this;
-        if( _this.linked ) return; //Anoter IScroll loads the data.
-        
-        var callback = function(data) {
+        if( _this.linkedWith ) return; //Anoter IScroll loads the data.
+                
+        var callback = function(data, totalCount) {
             if( loaded) loaded();            
             
             _this.updateCache(start, data);
-            _this.reorderInfinite(true);
+            _this.reorderInfinite(true);            
+            //TODO: Do something with totalCount.            
             
-            for(var i = 0; i < _this.infiniteParticipants.length; i++ ) {                
-                _this.infiniteParticipants[i].updateCache(start, data);
-                _this.infiniteParticipants[i].reorderInfinite(true);                
+            for(var i = 0; i < _this.linkedScrollers.length; i++ ) {                            
+                _this.linkedScrollers[i].reorderInfinite(true);                
             }                                  
         };
-        
-        _this.options.dataset.call(this, start, this.options.cacheSize, callback);                        
+                
+        _this.options.infiniteScroll.dataSource.call(this, start, this.options.infiniteScroll.cacheSize, callback);                        
     },
 
     _flashScrollbars: function() {
@@ -1786,11 +1784,11 @@ IScroll.prototype = {
     //Reloads the data for the cache at the current position, or optionally resets x and/or y positions
     reload: function(resetX, resetY) {                         
         var _this = this;
-        _this._loadDataSlice(resetY ? 0 : Math.max(this.cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer), this.options.cacheSize, 
+        _this._loadDataSlice(resetY ? 0 : Math.max(this.cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer), this.options.infiniteScroll.cacheSize, 
             function() {                
                 _this.scrollTo(resetX ? 0 : _this.x, resetY ? 0 : _this.y);               
-                for( var i = 0; i < _this.infiniteParticipants.length; i++ ) {            
-                    _this.infiniteParticipants[i].scrollTo(resetX ? 0 : _this.infiniteParticipants[i].x, resetY ? 0 : _this.infiniteParticipants[i].y);                    
+                for( var i = 0; i < _this.linkedScrollers.length; i++ ) {            
+                    _this.linkedScrollers[i].scrollTo(resetX ? 0 : _this.linkedScrollers[i].x, resetY ? 0 : _this.linkedScrollers[i].y);                    
                 }
                 
                 _this._flashScrollbars();                    
@@ -1805,26 +1803,21 @@ IScroll.prototype = {
 
 		var minorPhase = Math.max(Math.floor(-this.y / this.infiniteElementHeight) - this.infiniteUpperBufferSize, 0),
 			majorPhase = Math.floor(minorPhase / this.infiniteLength),
-			phase = minorPhase - majorPhase * this.infiniteLength;
+			phase = minorPhase - majorPhase * this.infiniteLength;        
 
 		var top = 0;
 		var i = 0;
-		var update = [];
-
-		//var cachePhase = Math.floor((minorPhase + this.infiniteLength / 2) / this.infiniteCacheBuffer);
+		var update = [];		
 		var cachePhase = Math.floor(minorPhase / this.infiniteCacheBuffer);
-
 		while ( i < this.infiniteLength ) {
 			top = i * this.infiniteElementHeight + majorPhase * this.infiniteHeight;
-
 			if ( phase > i ) {
 				top += this.infiniteElementHeight * this.infiniteLength;
 			}
 
 			if ( this.infiniteElements[i]._top !== top || updatePhase) {
 				this.infiniteElements[i]._phase = top / this.infiniteElementHeight;
-
-				if ( this.infiniteElements[i]._phase < this.options.infiniteLimit ) {
+				if ( this.infiniteElements[i]._phase < this.options.infiniteScroll.totalCount ) {
 					this.infiniteElements[i]._top = top;
 					if ( this.options.infiniteUseTransform ) {
 						this.infiniteElements[i].style[utils.style.transform] = 'translate(0, ' + top + 'px)' + this.translateZ;
@@ -1838,8 +1831,8 @@ IScroll.prototype = {
 			i++;
 		}
         
-		if ( !updatePhase && this.cachePhase != cachePhase && (cachePhase === 0 || minorPhase - this.infiniteCacheBuffer > 0) ) {			 
-             this._loadDataSlice(Math.max(cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer, 0), this.options.cacheSize);
+		if ( !updatePhase && this.cachePhase != cachePhase && (cachePhase === 0 || minorPhase - this.infiniteCacheBuffer > 0) ) {			                     
+            this._loadDataSlice(Math.max(cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer, 0), this.options.infiniteScroll.cacheSize);
 		}
 
 		this.cachePhase = cachePhase;
@@ -1849,30 +1842,30 @@ IScroll.prototype = {
 
 
 	updateContent: function (els) {
-		if ( this.infiniteCache === undefined ) {
+		if ( this.infiniteCache === undefined ) {            
 			return;
-		}
+		}        
         var _this = this;
-        rAF(function() {
-            for ( var i = 0, l = els.length; i < l; i++ ) {            
-                _this.options.dataFiller.call(_this, els[i], _this.infiniteCache[els[i]._phase], els[i]._phase >= _this.options.infiniteLimit);
+        rAF(function() {            
+            for ( var i = 0, l = els.length; i < l; i++ ) {                        
+                _this.options.infiniteScroll.updater.call(_this, els[i], _this.infiniteCache[els[i]._phase], els[i]._phase >= _this.options.infiniteScroll.totalCount);
             }
         });
 	},
 
 	updateCache: function (start, data) {
-		var firstRun = this.infiniteCache === undefined;
+		
+        if( this.linkedWith ) {
+            return;
+        }
         
-		this.infiniteCache = {};
-
+		this.infiniteCache = {};        
+        for (var i = 0, l = this.linkedScrollers.length; i < l; i++) {
+            this.linkedScrollers[i].infiniteCache = this.infiniteCache;
+        }        
 		for ( var i = 0, l = data.length; i < l; i++ ) {
 			this.infiniteCache[start++] = data[i];
-		}
-
-		if ( firstRun ) {
-			this.updateContent(this.infiniteElements);
-		}
-
+		}	        
 	},
 	_animate: function (destX, destY, duration, easingFn) {
 		var that = this,
