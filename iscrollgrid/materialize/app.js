@@ -55,9 +55,10 @@ $(function() {
         }, Math.random()*750);	        
     }
 
-    function updateContent (el, data, hide) {                
-        el.style.display = hide ? "none" : "";                
-        if( hide ) return;
+    function updateContent (el, data, hide) {         
+        this.els = this.els || {};
+        el.style.display = hide ? "none" : "";        
+        if( hide ) return;        
 
         if( !data ) {            
             $(el).addClass("loading");
@@ -68,6 +69,15 @@ $(function() {
             }        
             return;
         }	
+        
+        //Map data.id to elements
+        var dataSource = $(el).data("dataSource");
+        if( dataSource ) {
+            delete this.els[dataSource.id];
+        }        
+        this.els[data.id] = el;
+        $(el).data("dataSource", data);
+        
         
         $(el).removeClass("loading");
         el.setAttribute("data-id", data.id);
@@ -84,7 +94,7 @@ $(function() {
             } else if( ix == 2 ) {
                 var w = 100 * (data.cols[ix] - 0)/100;
                 el.children[i].innerHTML = data.cols[ix];
-                el.children[i].style.background = "linear-gradient(to right, #03a9f4 0%, #b3e5fc " + w + "%, white " + w + "%)";                
+                el.children[i].style.background = "linear-gradient(to right, #03a9f4 0%, #b3e5fc " + w + "%, transparent " + w + "%)";                
                 //el.children[i].style.background = "linear-gradient(to right, #03a9f4 0%, #03a9f4 " + w + "%, white " + w + "%)";                
                 //el.children[i].innerHTML = "<div class='bar' style='width:" + w + "%'></div><div class='text'>" +  data.cols[ix] + "</div>";
             } else {
@@ -120,8 +130,8 @@ $(function() {
         prevCount = count;        
         $("#l > .scroller").css("height", (114 + count*51) + "px");
         $("#m > .scroller").css("height", count*51 + "px");        
-        mScroll.options.infiniteLimit = count;        
-        lScroll.options.infiniteLimit = count;                
+        mScroll.options.infiniteScroll.totalCount = count;        
+        lScroll.options.infiniteScroll.totalCount = count;                
         
         
         $("#l").css("height", (114 + Math.min(count, maxRows) * 51) + "px");
@@ -238,4 +248,72 @@ $(function() {
         
         e.preventDefault();
     });   
+    
+    var scrolling = 0;
+    
+    var onscrollstart = function() {
+        if( !this.scrolling ) {
+            ++scrolling;
+            this.scrolling = true;
+        }
+        toggleHl(false);             
+        active = false;
+    }
+    
+    var onscrollend = function() {
+        if( this.scrolling ) {
+            --scrolling;
+            this.scrolling = false;
+        }        
+    }
+    
+    /*var $header1 = document.getElementById("t");
+    var $header2 = document.getElementById("tl");
+    var $left = document.getElementById("l");
+    var onscroll = function() {
+        var y = this.y > 0 ? this.y : 0;
+        var x = this.x > 0 ? this.x : 0;
+        if( y > 0 || x > 0) {
+            $header1.style.transform = $header2.style.transform  = $left.style.transform = "translate(" + x + "px," + y + "px)";            
+        } else if( $header1.style.transform ) {
+            $header1.style.transform = $header2.style.transform = $left.style.transform = "";
+        }        
+    }
+    mScroll.on("scroll", onscroll);
+    lScroll.on("scroll", onscroll);*/
+    
+    lScroll.on("scrollStart", onscrollstart);
+    mScroll.on("scrollStart", onscrollstart);
+    lScroll.on("scrollEnd", onscrollend);
+    mScroll.on("scrollEnd", onscrollend);
+
+    
+    var hl = [];
+    var toggleHl = function(toggle) {
+        for( var i = 0; i < hl.length; i++) {            
+            $(hl[i]).toggleClass("hover", toggle);
+        }   
+    }
+    
+    var active;
+    
+    var hover = function() {
+        if( !active ) return;
+        var data = $(active).data("dataSource");
+        if( data ) {
+            hl[0] = lScroll.els[data.id];
+            hl[1] = mScroll.els[data.id];
+            toggleHl(true);
+        }
+    }
+    
+    $("#l ul.row, #m ul.row").on("mousemove", function() {               
+        if( scrolling ) return;
+        if( active == this) return;
+        active = this;          
+        hover();        
+    }).on("mouseleave", function() {        
+        toggleHl(false);        
+        active = null;        
+    });
 });

@@ -163,3 +163,5 @@ ul.row li.sorted i.sort-icon { visibility: visible;}
 
 /*li .bar { background-color: #03a9f4; position: absolute; top: 0px; left:0; bottom:0px; }*/
 li .text {z-index: 1; position: relative;}
+
+#grid ul.hover { background-color: #EEEEEE;}

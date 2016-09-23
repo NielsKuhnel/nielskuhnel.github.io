@@ -199,7 +199,7 @@ var utils = (function () {
 	me.extend(me.ease = {}, {
 		quadratic: {
 			style: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-			fn: function (k) {
+			fn: function (k) {                
 				return k * ( 2 - k );
 			}
 		},
@@ -455,7 +455,7 @@ IScroll.prototype = {
 		}
 	},
 
-	_start: function (e) {
+	_start: function (e) {        
 		// React to left mouse button only
 		if ( utils.eventType[e.type] != 1 ) {
 		  // for button property
@@ -503,6 +503,11 @@ IScroll.prototype = {
 		this.absStartY = this.y;
 		this.pointX    = point.pageX;
 		this.pointY    = point.pageY;
+        
+        this.bounceN = this.y < 0;
+        this.bounceS = this.y > this.maxScrollY;
+        this.bounceE = this.x < 0;
+        this.bounceW = this.x > this.maxScrollX;
 
 		this._execEvent('beforeScrollStart');
 	},
@@ -524,7 +529,7 @@ IScroll.prototype = {
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
 		}
-
+        
 		if ( this.options.preventDefault ) {	// increases performance on Android? TODO: check!
 			e.preventDefault();
 		}
@@ -538,7 +543,7 @@ IScroll.prototype = {
 
 		this.pointX		= point.pageX;
 		this.pointY		= point.pageY;
-
+        
 		this.distX		+= deltaX;
 		this.distY		+= deltaY;
 		absDistX		= Math.abs(this.distX);
@@ -585,13 +590,24 @@ IScroll.prototype = {
 
 		newX = this.x + deltaX;
 		newY = this.y + deltaY;
+        
+        var bounceFrictionX = 10;
+        var bounceFrictionY = 10;
+        // if( newX > 0 && !this.bounceE ) newX = 0;
+        // if( newX < this.maxScrollX && !this.bounceW ) newX = this.maxScrollX;
+        // if( newY > 0 && !this.bounceN ) newY = 0;
+        // if( newY < this.maxScrollY && !this.bounceS ) newY = this.maxScrollY;
+        if( newX > 0 && !this.bounceE ) bounceFrictionX = 30;
+        if( newX < this.maxScrollX && !this.bounceW ) bounceFrictionX = 30;
+        if( newY > 0 && !this.bounceN ) bounceFrictionY = 30;
+        if( newY < this.maxScrollY && !this.bounceS ) bounceFrictionY = 30;
 
 		// Slow down if outside of the boundaries
-		if ( newX > 0 || newX < this.maxScrollX ) {
-			newX = this.options.bounce ? this.x + deltaX / 3 : newX > 0 ? 0 : this.maxScrollX;
+		if ( newX > 0 || newX < this.maxScrollX ) {            
+			newX = this.options.bounce ? this.x + deltaX / bounceFrictionX : newX > 0 ? 0 : this.maxScrollX;
 		}
 		if ( newY > 0 || newY < this.maxScrollY ) {
-			newY = this.options.bounce ? this.y + deltaY / 3 : newY > 0 ? 0 : this.maxScrollY;
+			newY = this.options.bounce ? this.y + deltaY / bounceFrictionY : newY > 0 ? 0 : this.maxScrollY;
 		}              
 
 		this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
@@ -602,7 +618,6 @@ IScroll.prototype = {
 		}
 
 		this.moved = true;
-
 		this._translate(newX, newY);
 
 /* REPLACE START: _move */
@@ -623,7 +638,7 @@ IScroll.prototype = {
 
 	},
 
-	_end: function (e) {
+	_end: function (e) {        
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
 		}
@@ -643,7 +658,7 @@ IScroll.prototype = {
 			distanceY = Math.abs(newY - this.startY),
 			time = 0,
 			easing = '';
-
+            
 		this.isInTransition = 0;
 		this.initiated = 0;
 		this.endTime = utils.getTime();        
@@ -710,14 +725,19 @@ IScroll.prototype = {
         var xout = Math.abs(speedX) < 0.01 || (this.x >= 0 || this.x <= this.maxScrollX);
         var yout = Math.abs(speedY) < 0.01 || (this.y >= 0 || this.y <= this.maxScrollY);
         // reset if we are outside of the boundaries        
-		if ( (xout && yout) && this.resetPosition(this.options.bounceTime) ) {			
+		if ( (xout && yout) && this.resetPosition(this.options.bounceTime) ) {		
             return;
 		}
 
-		if ( newX != this.x || newY != this.y ) {
+		if ( newX != this.x || newY != this.y ) {            
 			// change easing function when scroller goes out of the boundaries
 			if ( newX > 0 || newX < this.maxScrollX || newY > 0 || newY < this.maxScrollY ) {
-				easing = utils.ease.quadratic;
+                if( newX > 0 ) newX /= 3;
+                else if( newX < this.maxScrollX ) newX = this.maxScrollX + (newX - this.maxScrollX)/3;
+                if( newY > 0 ) newY /= 3;
+                else if( newY < this.maxScrollY ) newY = this.maxScrollY + (newY - this.maxScrollY)/3;
+				easing = utils.ease.quadratic;                        
+                
 			}
 
 			this.scrollTo(newX, newY, time, easing);
@@ -1670,6 +1690,8 @@ IScroll.prototype = {
             
             var newX = src.x >= 0 ? 0 : src.x <= src.maxScrollX ? src.maxScrollX : src.x;
             var newY = src.y >= 0 ? 0 : src.y <= src.maxScrollY ? src.maxScrollY : src.y;            
+            //var newX = src.x;
+            //var newY = src.y;
             if( (x && target.x != newX) || (y && target.y != newY) ) {                         
                 target.scrollTo(x ? newX : target.x, y ? newY : target.y);  
             }            
@@ -1726,8 +1748,7 @@ IScroll.prototype = {
             this.linkedWith.synchronize(this);
         } else {
             this.infiniteCache = {};
-        }
-        
+        }        
         
 		this.on('refresh', function () {            
 			var elementsPerPage = Math.ceil(this.wrapperHeight / this.infiniteElementHeight);
@@ -1745,6 +1766,7 @@ IScroll.prototype = {
             _this.reorderInfinite();
             for(var i = 0; i < _this.linkedScrollers.length; i++ ) {                                                           
                 var newY = _this.y >= 0 ? 0 : _this.y <= _this.maxScrollY ? _this.maxScrollY : _this.y;
+                //var newY = _this.y;
                 if( _this.linkedScrollers[i].y != newY ) {                    
                     _this.linkedScrollers[i].scrollTo(_this.linkedScrollers[i].x, newY);                    
                 }                    
@@ -1846,8 +1868,8 @@ IScroll.prototype = {
 			return;
 		}        
         var _this = this;
-        rAF(function() {            
-            for ( var i = 0, l = els.length; i < l; i++ ) {                        
+        rAF(function() {                        
+            for ( var i = 0, l = els.length; i < l; i++ ) {                
                 _this.options.infiniteScroll.updater.call(_this, els[i], _this.infiniteCache[els[i]._phase], els[i]._phase >= _this.options.infiniteScroll.totalCount);
             }
         });
@@ -1867,7 +1889,7 @@ IScroll.prototype = {
 			this.infiniteCache[start++] = data[i];
 		}	        
 	},
-	_animate: function (destX, destY, duration, easingFn) {
+	_animate: function (destX, destY, duration, easingFn) {        
 		var that = this,
 			startX = this.x,
 			startY = this.y,

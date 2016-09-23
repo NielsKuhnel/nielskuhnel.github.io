@@ -1,6 +1,5 @@
-virtualScroll: {
-    factory: function(){},
-    updater: function(els) {},
+virtualScroll: {    
+    updater: function(el, data, hide) {},
     [
     dataSource: function(start, count, callback) {} //callback = function(data, totalCount){},
     cacheSize: 1000    
