@@ -78,12 +78,18 @@ $(function() {
         this.els[data.id] = el;
         $(el).data("dataSource", data);
         
-        
+        $(el).toggleClass("hover", data.id && data.id == hoverId);
+        $(el).toggleClass("selected", selectedIds[data.id] == true);
         $(el).removeClass("loading");
-        el.setAttribute("data-id", data.id);
+        el.setAttribute("data-id", data.id);        
         for(var i = 0, n = el.children.length; i < n; i++ ) {                    
-            var ix = i < fixed ? i : i + fixed;
-            if( ix == sparkIndex ) {                                
+            var ix = i + (this == mScroll ? fixed : 0);
+            
+            if( ix == 0 ) {                               
+                el.children[i].innerHTML = "<input class='filled-in' type='checkbox' id='chk" + data.id + "'" + (selectedIds[data.id] ? " checked" : "") + ">"
+                    + "<label class='check-label' for='chk" + data.id + "'>" + data.cols[ix] + "</label>";
+            }
+            else if( ix == sparkIndex ) {                                
                 //$(el.children[i]).sparkline(data.cols[ix], { width: "100px", spotRadius: 0, fillColor: "#b3e5fc", lineColor: "#03a9f4", disableTooltips: true, disableHighlight: true});                
                   var target = $("span.spark", el.children[i]);
                   if( target.length ) {
@@ -174,6 +180,7 @@ $(function() {
         scrollX: true,
         scrollY: true,
         freeScroll: true,    
+        tap: true,
         
         scrollbars: true,
         interactiveScrollbars: true,      
@@ -190,10 +197,10 @@ $(function() {
     }));
     
     var lScroll = new IScroll($l, defaultOptions({
-      scrollX: false,
-      scrollY: true,
-      probeType: 3,
-              
+          scrollX: false,
+          scrollY: true,      
+          probeType: 3,
+          tap: true,
         infiniteScroll: { 
             elements: '#l ul.row', 
             linkWith: mScroll,
@@ -249,71 +256,43 @@ $(function() {
         e.preventDefault();
     });   
     
-    var scrolling = 0;
-    
-    var onscrollstart = function() {
-        if( !this.scrolling ) {
-            ++scrolling;
-            this.scrolling = true;
-        }
-        toggleHl(false);             
-        active = false;
-    }
-    
-    var onscrollend = function() {
-        if( this.scrolling ) {
-            --scrolling;
-            this.scrolling = false;
-        }        
-    }
-    
-    /*var $header1 = document.getElementById("t");
-    var $header2 = document.getElementById("tl");
-    var $left = document.getElementById("l");
-    var onscroll = function() {
-        var y = this.y > 0 ? this.y : 0;
-        var x = this.x > 0 ? this.x : 0;
-        if( y > 0 || x > 0) {
-            $header1.style.transform = $header2.style.transform  = $left.style.transform = "translate(" + x + "px," + y + "px)";            
-        } else if( $header1.style.transform ) {
-            $header1.style.transform = $header2.style.transform = $left.style.transform = "";
-        }        
-    }
-    mScroll.on("scroll", onscroll);
-    lScroll.on("scroll", onscroll);*/
-    
-    lScroll.on("scrollStart", onscrollstart);
-    mScroll.on("scrollStart", onscrollstart);
-    lScroll.on("scrollEnd", onscrollend);
-    mScroll.on("scrollEnd", onscrollend);
-
-    
+    //Hover      
     var hl = [];
+    var hoverId = null;   
     var toggleHl = function(toggle) {
         for( var i = 0; i < hl.length; i++) {            
             $(hl[i]).toggleClass("hover", toggle);
         }   
     }
-    
-    var active;
-    
-    var hover = function() {
-        if( !active ) return;
-        var data = $(active).data("dataSource");
-        if( data ) {
-            hl[0] = lScroll.els[data.id];
-            hl[1] = mScroll.els[data.id];
+           
+    $("#l ul.row, #m ul.row").on("mouseenter", function() {               
+        var data = $(this).data("dataSource");
+        hoverId = data && data.id;
+        if( hoverId ) {
+            hl[0] = lScroll.els[hoverId];
+            hl[1] = mScroll.els[hoverId];
             toggleHl(true);
         }
-    }
-    
-    $("#l ul.row, #m ul.row").on("mousemove", function() {               
-        if( scrolling ) return;
-        if( active == this) return;
-        active = this;          
-        hover();        
-    }).on("mouseleave", function() {        
+        
+    }).on("mouseleave touchstart", function() {        
         toggleHl(false);        
-        active = null;        
+        hoverId = null;
+    });
+    
+    //Select
+
+    var selectedIds = {};    
+    $($l).add($m).on("tap", "ul.row", function(e) {           
+        var id = $(this).data("dataSource").id;       
+        if( id ) {            
+            var selected = selectedIds[id];
+            if( selected) {
+                delete selectedIds[id];
+            } else {
+                selectedIds[id] = true;
+            }
+            $(lScroll.els[id]).add(mScroll.els[id]).toggleClass("selected", !selected);
+            $("#chk" + id).prop("checked", function(i, v) { return !selected; });
+        }
     });
 });

@@ -1,4 +1,4 @@
-/*! iScroll v5.2.0 ~ (c) 2008-2016 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.2.0 ~ (c) 2008-2016 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -248,8 +248,8 @@ var utils = (function () {
 		var ev = document.createEvent('Event');
 		ev.initEvent(eventName, true, true);
 		ev.pageX = e.pageX;
-		ev.pageY = e.pageY;
-		e.target.dispatchEvent(ev);
+		ev.pageY = e.pageY;        
+		e.target.dispatchEvent(ev);        
 	};
 
 	me.click = function (e) {
@@ -732,10 +732,11 @@ IScroll.prototype = {
 		if ( newX != this.x || newY != this.y ) {            
 			// change easing function when scroller goes out of the boundaries
 			if ( newX > 0 || newX < this.maxScrollX || newY > 0 || newY < this.maxScrollY ) {
-                if( newX > 0 ) newX /= 3;
-                else if( newX < this.maxScrollX ) newX = this.maxScrollX + (newX - this.maxScrollX)/3;
-                if( newY > 0 ) newY /= 3;
-                else if( newY < this.maxScrollY ) newY = this.maxScrollY + (newY - this.maxScrollY)/3;
+                var friction = 2;
+                if( newX > 0 ) newX /= friction;
+                else if( newX < this.maxScrollX ) newX = this.maxScrollX + (newX - this.maxScrollX) / friction;
+                if( newY > 0 ) newY /= friction;
+                else if( newY < this.maxScrollY ) newY = this.maxScrollY + (newY - this.maxScrollY) / friction;
 				easing = utils.ease.quadratic;                        
                 
 			}
@@ -1973,7 +1974,7 @@ IScroll.prototype = {
 			case 'keydown':
 				this._key(e);
 				break;
-			case 'click':
+			case 'click':                
 				if ( this.enabled && !e._constructed ) {
 					e.preventDefault();
 					e.stopPropagation();
