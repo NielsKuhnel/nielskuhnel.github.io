@@ -9,6 +9,7 @@
             height: 400px;
             background-color: #ccc;
             overflow: hidden;
+            margin: 40px;
         }
         
         .fishey {
@@ -32,12 +33,12 @@
 
             var t = document.getElementById("fish");            
             
-            var nx = 40;
-            var ny = 10;
+            var nx = 10;
+            var ny = 50;
         
             var scale = [t.clientWidth - 1, t.clientHeight - 1];
-            var boundX = [0,400];
-            var boundY = [0,100];
+            var boundX = [0, 100];
+            var boundY = [0, 800];
             var sizeX = 50;
             var sizeY = 50;
             
@@ -59,17 +60,20 @@
             
             var fish = fisheyeElements(els, nx, [sizeX, sizeY], [t.clientWidth - 1, t.clientHeight - 1], boundX, boundY);
             
-            fish(boundX[0], boundY[0]);
+            var pos = [boundX[1]/2, boundY[1]];
+            
+            fish(boundX[1] - pos[0], boundY[1] - pos[1]);
                                                 
             
             var options;
             var surface = new KineticSurface(t, options = {
                 boundX: boundX, 
-                boundY: boundY, 
+                boundY: boundY,
+                initialPosition: pos,
                 snapX: fish.snapx, 
                 snapY: fish.snapY,                 
                 friction: 0.005,
-                update: function(x,y) { fish(x,y); }
+                update: function(x,y) { fish(boundX[1] - x, boundY[1] - y); }
             });                       
         </script>
     </body>
