@@ -1,33 +1,35 @@
-<html>
-
-    <style>        
+<html>        
+    <head>
+        <meta name="viewport" content="width=720, initial-scale=1, maximum-scale=1">
+        <style>        
+                
+            #fish {
+                position: relative;            
+                border: 1px solid #999;
+                width:480px;
+                height: 640px;
+                background-color: #fefefe;
+                overflow: hidden;
+                margin: 40px;
+                
+                  -webkit-user-select: none;  /* Chrome all / Safari all */
+                  -moz-user-select: none;     /* Firefox all */
+                  -ms-user-select: none;      /* IE 10+ */
+                  user-select: none;
+            }
             
-        #fish {
-            position: relative;            
-            border: 1px solid #999;
-            width:480px;
-            height: 640px;
-            background-color: #fefefe;
-            overflow: hidden;
-            margin: 40px;
-            
-              -webkit-user-select: none;  /* Chrome all / Safari all */
-              -moz-user-select: none;     /* Firefox all */
-              -ms-user-select: none;      /* IE 10+ */
-              user-select: none;
-        }
-        
-        .fishey {
-            border: 1px solid #999;            
-            background-color: white;
-            top: 0; left: 0;            
-            height: 50px;
-            width: 50px;
-            position: absolute;  
-            transform-origin: 0 0;
-            backface-visibility: hidden;
-        }
-    </style>
+            .fishey {
+                border: 1px solid #999;            
+                background-color: white;
+                top: 0; left: 0;            
+                height: 50px;
+                width: 50px;
+                position: absolute;  
+                transform-origin: 0 0;
+                backface-visibility: hidden;
+            }
+        </style>
+    </head>
 
     <body>
                
