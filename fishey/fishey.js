@@ -16,7 +16,7 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
     var xs = new Array(nx + 1);
     var ys = new Array(ny + 1);
     
-    function updateElements() {
+    function updateElements(offsetX, offsetY) {
         var stepX = 1/nx;    
         var stepY = 1/ny;                
         
@@ -25,7 +25,7 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         for(var x = 0; x <= nx; x++) {
             var endX = scaleX * fishX((x+1) * stepX);
             endX = x == nx ? Math.ceil(endX) : Math.round(endX);
-            xs[x] = startX;
+            xs[x] = offsetX + startX;
             startX = endX;
         }
         
@@ -33,7 +33,7 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         for(var y = 0; y <= ny; y++) {
             var endY = scaleY * fishY((y+1) * stepY);
             endY = x == nx ? Math.ceil(endY) : Math.round(endY);
-            ys[y] = startY;
+            ys[y] = offsetY + startY;
             startY = endY;
         }                         
         
@@ -64,19 +64,21 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         fish.focus(Math.max(0, Math.min(1, p)));
         
         var overflow = p < 0 ? -p : p > 1 ? p - 1 : 0;
-        
+        overflow = .25*overflow*(max - min);
         //Gets the "d" for the fisheye that gives the desired max width        
-        var size = maxSize + .25*overflow*(max - min);        
+        var size = maxSize + overflow;
         var d = (n*size - scale) / (scale - size);                            
         fish.setD(d, n, scale);
+                
+        return (p < 0 ? 1 : -1) * overflow;
     }
        
     var updateFunction = function(x, y) {
                 
-        updateFish(x, maxSize[0], boundX[0], boundX[1], fishX, nx, scaleX);
-        updateFish(y, maxSize[1], boundY[0], boundY[1], fishY, ny, scaleY);
+        var overflowX = updateFish(x, maxSize[0], boundX[0], boundX[1], fishX, nx, scaleX);
+        var overflowY = updateFish(y, maxSize[1], boundY[0], boundY[1], fishY, ny, scaleY);
         
-        updateElements();
+        updateElements(overflowX, overflowY);
     };
     
     updateFunction.snapX = rangeX * 1/(nx-1);
