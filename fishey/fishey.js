@@ -24,17 +24,24 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
             for( var y = 0; y < ny; y++) {
                 var el = elements[ix++];                
                 var endY = Math.round(scaleY * fishY((y+1) * stepY));                
-                if( (endX - startX) < 1 && (endY - startY) < 1 ) {                    
+                if( (endX - startX) < 0 && (endY - startY) < 0 ) {                    
                     el.style.display = "none";
+                    
                 } else {
                     var widthX = endX - startX;
                     var widthY = endY - startY;
+                                        
+                    /*var scaleX = widthX/maxSize[0];
+                    var scaleY = widthY/maxSize[1];*/
+                    el.style.transform = "translate3d(" + startX + "px," + startY + "px,0)"
+                    + " scaleX(" + widthX/maxSize[0] + ")"
+                    + " scaleY(" + widthY/maxSize[1] + ")";
                     
-                    el.style.display = "block";            
-                    el.style.left = startX + "px";
-                    el.style.width = widthX + "px";                                        
-                    el.style.top = startY + "px";
-                    el.style.height = widthY + "px";                                     
+                    el.style.display = "block";                                
+                    // el.style.left = startX + "px";
+                    // el.style.width = widthX + "px";                                        
+                    // el.style.top = startY + "px";
+                    // el.style.height = widthY + "px";                                     
                     
                     var opacityX = widthX > 0.25*maxSize[0] ? 1 : 0.2 + 0.8*widthX/(0.25*maxSize[0]);                    
                     var opacityY = widthY > 0.25*maxSize[1] ? 1 : 0.2 + 0.8*widthY/(0.25*maxSize[1]);                    
