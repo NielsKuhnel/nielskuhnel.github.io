@@ -61,7 +61,7 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         var overflow = p < 0 ? -p : p > 1 ? p - 1 : 0;
         
         //Gets the "d" for the fisheye that gives the desired max width        
-        var size = maxSize + overflow*(max - min);
+        var size = maxSize + 0.5*overflow*(max - min);
         var d = (n*size - scale) / (scale - size);                            
         fish.setD(d, n, scale);
     }
