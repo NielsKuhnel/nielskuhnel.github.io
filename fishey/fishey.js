@@ -1,4 +1,4 @@
-
+"use strict";
 
 function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         
@@ -13,44 +13,49 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
     var scaleX = containerSize[0];
     var scaleY = containerSize[1];
     
+    var xs = new Array(nx + 1);
+    var ys = new Array(ny + 1);
+    
     function updateElements() {
         var stepX = 1/nx;    
         var stepY = 1/ny;                
-        var ix = 0;
+        
+        
         var startX = 0;
-        for(var x = 0; x < nx; x++) {                                  
-            var endX = Math.round(scaleX * fishX((x+1) * stepX));            
-            var startY = 0;
+        for(var x = 0; x <= nx; x++) {
+            var endX = scaleX * fishX((x+1) * stepX);
+            endX = x == nx ? Math.ceil(endX) : Math.round(endX);
+            xs[x] = startX;
+            startX = endX;
+        }
+        
+        var startY = 0;        
+        for(var y = 0; y <= ny; y++) {
+            var endY = scaleY * fishY((y+1) * stepY);
+            endY = x == nx ? Math.ceil(endY) : Math.round(endY);
+            ys[y] = startY;
+            startY = endY;
+        }                         
+        
+        var transform = ["translate3d(", 0, "px,", 0, "px,0)"]
+        var ix = 0;
+        for(var x = 0; x < nx; x++) {   
+            var posx = xs[x];
+            var w = xs[x+1] - pos;        
             for( var y = 0; y < ny; y++) {
+                var posy = ys[y];
+                var h = ys[y+1] - posy;
+                
                 var el = elements[ix++];                
-                var endY = Math.round(scaleY * fishY((y+1) * stepY));                
-                if( (endX - startX) < 2 && (endY - startY) < 2 ) {                    
-                    el.style.display = "none";
-                    
+                if( w < 1 && h < 1 ) {                    
+                    el.style.display = "none";                    
                 } else {
-                    var widthX = endX - startX;
-                    var widthY = endY - startY;
-                                        
                     el.style.display = "block";  
-                    /*var scaleX = widthX/maxSize[0];
-                    var scaleY = widthY/maxSize[1];*/
-                    el.style.transform = "translate3d(" + startX + "px," + startY + "px,0)";
-                    //+ " scaleX(" + widthX/maxSize[0] + ")"
-                    //+ " scaleY(" + widthY/maxSize[1] + ")";
-                    
-                                                  
-                    // el.style.left = startX + "px";
-                    el.style.width = widthX + "px";                                        
-                    // el.style.top = startY + "px";
-                    el.style.height = widthY + "px";                                     
-                    
-                    var opacityX = widthX > 0.3*maxSize[0] ? 1 : 0.1 + 0.9*widthX/(0.3*maxSize[0]);                    
-                    var opacityY = widthY > 0.3*maxSize[1] ? 1 : 0.1 + 0.9*widthY/(0.3*maxSize[1]);                    
-                    el.style.opacity = opacityX * opacityY;
-                }                
-                startY = endY;
-            }            
-            startX = endX;            
+                    transform[1] = posx;
+                    transform[3] = posy;                   
+                    el.style.transform = transform.join("");                                        
+                }                           
+            }                            
         }        
     }
         
@@ -61,7 +66,7 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         var overflow = p < 0 ? -p : p > 1 ? p - 1 : 0;
         
         //Gets the "d" for the fisheye that gives the desired max width        
-        var size = maxSize + 0.5*overflow*(max - min);
+        var size = maxSize + .25*overflow*(max - min);        
         var d = (n*size - scale) / (scale - size);                            
         fish.setD(d, n, scale);
     }

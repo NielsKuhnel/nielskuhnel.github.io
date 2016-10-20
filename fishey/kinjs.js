@@ -1,3 +1,4 @@
+"use strict";
 
 function KineticSurface(el, options) {    
     if( typeof(el) == "string" ) {
