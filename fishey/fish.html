@@ -1,0 +1,76 @@
+<html>
+
+    <style>        
+            
+        #fish {
+            position: relative;            
+            border: 1px solid black;
+            width: 400px;
+            height: 400px;
+            background-color: #ccc;
+            overflow: hidden;
+        }
+        
+        .fishey {
+            border-left: 1px solid #999;
+            border-top: 1px solid #999;
+            background-color: white;
+            top: 0;
+            height: 100px;
+            position: absolute;                    
+        }
+    </style>
+
+    <body>
+               
+        
+        <div id="fish"></div>        
+        
+        <script src="kinjs.js"></script>
+        <script src="fishey.js"></script>
+        <script>          
+
+            var t = document.getElementById("fish");            
+            
+            var nx = 40;
+            var ny = 10;
+        
+            var scale = [t.clientWidth - 1, t.clientHeight - 1];
+            var boundX = [0,400];
+            var boundY = [0,100];
+            var sizeX = 50;
+            var sizeY = 50;
+            
+        
+              
+            var els = [];
+                                  
+            for( var x = 0; x < nx; x++ ) {
+                for( var y = 0; y < ny; y++ ) {
+                    var el = document.createElement("div");
+                    el.className = "fishey";                
+                    t.appendChild(el);
+                    
+                    els.push(el);
+                }       
+            }
+                       
+            
+            
+            var fish = fisheyeElements(els, nx, [sizeX, sizeY], [t.clientWidth - 1, t.clientHeight - 1], boundX, boundY);
+            
+            fish(boundX[0], boundY[0]);
+                                                
+            
+            var options;
+            var surface = new KineticSurface(t, options = {
+                boundX: boundX, 
+                boundY: boundY, 
+                snapX: fish.snapx, 
+                snapY: fish.snapY,                 
+                friction: 0.005,
+                update: function(x,y) { fish(x,y); }
+            });                       
+        </script>
+    </body>
+</html>
