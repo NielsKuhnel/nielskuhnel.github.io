@@ -40,12 +40,12 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         
         var transform = ["translate(", 0, "px,", 0, "px) translateZ(0)"];        
         var ix = 0;
-        for(var x = 0; x < nx; x++) {   
-            var posx = xs[x];
-            var w = xs[x+1] - posx;        
-            for( var y = 0; y < ny; y++) {
-                var posy = ys[y];
-                var h = ys[y+1] - posy;
+        for(var y = 0; y < ny; y++) {   
+            var posy = ys[y];
+            var h = ys[y+1] - posy;        
+            for( var x = 0; x < nx; x++) {
+                var posx = xs[x];
+                var w = xs[x+1] - posx;
                 
                 var sel = ((x == 0 || w - 1 > (xs[x] - xs[x-1])) && (x == nx - 1 || w - 1 > (xs[x+2] - xs[x + 1])))
                     && ((y == 0 || h - 1 > (ys[y] - ys[y-1])) && (y == ny-1 || h - 1 > (ys[y+2] - ys[y + 1])));
