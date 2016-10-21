@@ -16,32 +16,31 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
     var xs = new Array(nx + 1);
     var ys = new Array(ny + 1);
     
+    
     function updateElements(offsetX, offsetY) {
         var stepX = 1/nx;    
-        var stepY = 1/ny;                
-        
-        
-        var startX = 0;
-        for(var x = 0; x <= nx; x++) {
+        var stepY = 1/ny;                      
+        var startX = scaleX * fishX((0) * stepX);                
+        for(var x = 0; x <= nx; x++) {            
             var endX = scaleX * fishX((x+1) * stepX);
-            endX = x == nx ? Math.ceil(endX) : Math.round(endX);
-            xs[x] = offsetX + startX;
+            endX = x == nx ? Math.ceil(endX) : Math.floor(endX);                       
+            xs[x] = startX;
             startX = endX;
-        }
+        }        
         
-        var startY = 0;        
+        var startY = scaleY * fishY((0) * stepY);                       
         for(var y = 0; y <= ny; y++) {
             var endY = scaleY * fishY((y+1) * stepY);
-            endY = x == nx ? Math.ceil(endY) : Math.round(endY);
-            ys[y] = offsetY + startY;
+            endY = x == nx ? Math.ceil(endY) : Math.floor(endY);
+            ys[y] = startY;
             startY = endY;
         }                         
         
-        var transform = ["translate3d(", 0, "px,", 0, "px,0)"]
+        var transform = ["translate3d(", 0, "px,", 0, "px,0)"];        
         var ix = 0;
         for(var x = 0; x < nx; x++) {   
             var posx = xs[x];
-            var w = xs[x+1] - pos;        
+            var w = xs[x+1] - posx;        
             for( var y = 0; y < ny; y++) {
                 var posy = ys[y];
                 var h = ys[y+1] - posy;
@@ -53,7 +52,9 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
                     el.style.display = "block";  
                     transform[1] = posx;
                     transform[3] = posy;                   
-                    el.style.transform = transform.join("");                                        
+                    el.style.transform = transform.join("");    
+                    el.style.width = w + "px";
+                    el.style.height = h + "px";
                 }                           
             }                            
         }        
@@ -69,7 +70,7 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         var size = maxSize + overflow;
         var d = (n*size - scale) / (scale - size);                            
         fish.setD(d, n, scale);
-                
+                        
         return (p < 0 ? 1 : -1) * overflow;
     }
        

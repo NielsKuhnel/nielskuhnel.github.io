@@ -423,11 +423,11 @@ function KineticSurface(el, options) {
         } else if( snap ) {
             
             var snapStop = snapRound(stop, snap, min) + min;            
-            if( v0 < 0 && snapStop > x0) {                
-                snapStop = Math.max(min, snapStop - snap);                
-            } else if( v0 > 0 && snapStop < x0) {
-                snapStop = Math.min(max, snapStop + snap);                
-            }
+            // if( v0 < 0 && snapStop > x0) {                
+                // snapStop = Math.max(min, snapStop - snap);                
+            // } else if( v0 > 0 && snapStop < x0) {
+                // snapStop = Math.min(max, snapStop + snap);                
+            // }
             if( snapStop != stop) {
                 var v0 = frictionAnimation.v0FromDestination(x0, snapStop, mu);
                 if( Math.abs(v0) < V_STOP ) {

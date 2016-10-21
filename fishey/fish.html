@@ -1,6 +1,6 @@
 <html>        
     <head>
-        <meta name="viewport" content="width=720px, initial-scale=1, maximum-scale=1">
+        <meta name="viewport" content="width=720, initial-scale=1, maximum-scale=1">
         <meta http-equiv="cache-control" content="max-age=0" />
         <meta http-equiv="cache-control" content="no-cache" />
         <meta http-equiv="expires" content="0" />
@@ -14,8 +14,8 @@
             #fish {
                 position: relative;            
                 border: 1px solid #999;
-                width:480px;
-                height: 640px;
+                width:1024px;
+                height: 1024px;
                 background-color: #fefefe;
                 overflow: hidden;
                 margin: 40px;
@@ -30,12 +30,20 @@
                 border: 1px solid #999;            
                 background-color: white;
                 top: 0; left: 0;            
-                height: 50px;
-                width: 50px;
+                height: 400px;
+                width: 400px;
                 position: absolute;  
                 transform-origin: 0 0;
-                backface-visibility: hidden;
+                backface-visibility: hidden;                
+                background-repeat: no-repeat;
+                background-position: 50% 50%;                
             }
+            
+            .img0 { background-image: url('img/1.png');}
+            .img1 { background-image: url('img/2.png');}
+            .img2 { background-image: url('img/3.png');}
+            .img3 { background-image: url('img/4.png');}
+            .img4 { background-image: url('img/5.png');}            
         </style>
     </head>
 
@@ -50,23 +58,24 @@
 
             var t = document.getElementById("fish");            
             
-            var nx = 20;
-            var ny = 30;
+            var nx = 10;
+            var ny = 25;
         
             var scale = [t.clientWidth - 1, t.clientHeight - 1];
-            var boundX = [0, 400];
-            var boundY = [0, 600];
-            var sizeX = 50;
-            var sizeY = 50;
+            var boundX = [0, nx*scale[0]/4];
+            var boundY = [0, ny*scale[1]/4];
+            var sizeX = 400;
+            var sizeY = 400;
             
         
               
             var els = [];
-                                  
+                                                                
+            var ix = 0;
             for( var x = 0; x < nx; x++ ) {
                 for( var y = 0; y < ny; y++ ) {
                     var el = document.createElement("div");
-                    el.className = "fishey";                
+                    el.className = "fishey img" + ((x + y) % 5);                
                     t.appendChild(el);
                     
                     els.push(el);
@@ -87,9 +96,9 @@
                 boundX: boundX, 
                 boundY: boundY,
                 initialPosition: pos,
-                snapX: fish.snapx, 
+                snapX: fish.snapX, 
                 snapY: fish.snapY,                 
-                friction: 0.005,
+                friction: 0.0035,
                 update: function(x,y) { fish(boundX[1] - x, boundY[1] - y); }
             });                       
         </script>
