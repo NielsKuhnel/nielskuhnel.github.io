@@ -45,6 +45,9 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
                 var posy = ys[y];
                 var h = ys[y+1] - posy;
                 
+                var sel = ((x == 0 || w - 1 > (xs[x] - xs[x-1])) && (x == nx - 1 || w - 1 > (xs[x+2] - xs[x + 1])))
+                    && ((y == 0 || h - 1 > (ys[y] - ys[y-1])) && (y == ny-1 || h - 1 > (ys[y+2] - ys[y + 1])));
+                
                 var el = elements[ix++];                
                 if( w < 1 && h < 1 ) {                    
                     el.style.display = "none";                    
@@ -57,19 +60,25 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
                     var img = el.childNodes[0];
                     transform[1] = -(1 - (w / maxSize[0]))*maxSize[0]/2;                                        
                     transform[3] = -(1 - (h / maxSize[1]))*maxSize[1]/2;
-                    img.style.transform = transform.join("");
                     
-                    if( w >= maxSize[0] - 10 && h >= maxSize[1] - 10 ) {
+                    if( sel && x < nx - 1) {
+                        el.style.width = w + "px";                        
+                    }
+                    if( sel && y < ny - 1) {
+                        el.style.height = h + "px";                        
+                    }
+                    
+                    if( sel ) {
                         el.style.zIndex = 1;
-                        el.style.border = "2px solid #ff0000";
-                        el.style.margin = "-1px 0 0 -1px";
+                        el.style.border = "4px solid #ff0000";
+                        el.style.margin = "-2px 0 0 -2px";                        
                     } else {
                         el.style.margin = "0";
                         el.style.border = "";
                         el.style.zIndex = 0;
-                    }
-                    /*el.style.width = w + "px";
-                    el.style.height = h + "px";*/
+                        el.style.width = el.style.height = "";                                                
+                    }                    
+                    img.style.transform = transform.join("");                    
                 }                           
             }                            
         }        

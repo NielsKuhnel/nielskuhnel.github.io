@@ -39,7 +39,7 @@ function KineticSurface(el, options) {
     _this.didMove = false; //True if the el at some point moved more than 3 pixels between onDown and onUp (for "tap" event)
     
     var paused;        
-    var pointer = {active: false, current: null, start: null, startPosition: null};
+    var pointer = {active: false, current: null, start: null, previous: null, startPosition: null};
     var position = {x: _this.options.initialPosition[0], y: _this.options.initialPosition[1]};        
     
     el.addEventListener('touchstart', onDown);
@@ -91,7 +91,7 @@ function KineticSurface(el, options) {
 				stopAnimation();
 
                 pointer.active = true;                
-				pointer.current = pointer.start = event;      
+				pointer.current = pointer.previous = pointer.start = event;      
                 pointer.startPosition = {x: position.x, y: position.y};
 
 				trackingPoints = [];
@@ -126,9 +126,9 @@ function KineticSurface(el, options) {
                     //    callStateChangedCallback("start");
                     }
                 }
-
-				addTrackingPoint(event);
-                rAFThrottled(updateAndRender);                
+				
+                addTrackingPoint(pointer.previous);
+                rAFThrottled(updateAndRender);                               
 			}
 		}
 
@@ -188,6 +188,8 @@ function KineticSurface(el, options) {
             position.y = applyBoundResistance(pointer.startPosition.y + pointer.current.y - pointer.start.y, _this.options.boundY);            
             
             options.update.call(_this, position.x, position.y);
+            
+            pointer.previous = pointer.current;
         }
 
         function stopAnimation() {
@@ -210,10 +212,10 @@ function KineticSurface(el, options) {
     var animating = false;
     function startDecelAnimation(pos, vx, vy) {        
     
-    if( Math.abs(vx) < V_MIN ) vx = 0;
+        if( Math.abs(vx) < V_MIN ) vx = 0;
         if( Math.abs(vy) < V_MIN ) vy = 0;
         
-        if( vx > 0
+        if(    vx > 0
             || vy > 0
             || !inBounds(pos) 
             || snapRound(pos.x, _this.options.snapX, _this.options.boundX[0]) != pos.x
