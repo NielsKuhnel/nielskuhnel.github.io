@@ -13,7 +13,7 @@
             }
             #fish {
                 position: relative;            
-                border: 1px solid #999;
+                /*border: 1px solid #999;*/
                 width:1024px;
                 height: 1024px;
                 background-color: #fefefe;
@@ -23,7 +23,7 @@
                   -webkit-user-select: none;  /* Chrome all / Safari all */
                   -moz-user-select: none;     /* Firefox all */
                   -ms-user-select: none;      /* IE 10+ */
-                  user-select: none;
+                  user-select: none;                  
             }
             
             .fishey {
@@ -34,7 +34,7 @@
                 width: 400px;
                 position: absolute;                 
                 backface-visibility: hidden;   
-                overflow: hidden;
+                overflow: hidden;                
             }
             
             
@@ -70,7 +70,7 @@
             var nx = 10;
             var ny = 25;
         
-            var scale = [t.clientWidth - 1, t.clientHeight - 1];
+            var scale = [t.clientWidth - 4, t.clientHeight - 4];
             var boundX = [0, nx*scale[0]/4];
             var boundY = [0, ny*scale[1]/4];
             var sizeX = 400;
@@ -96,7 +96,7 @@
                        
             
             
-            var fish = fisheyeElements(els, nx, [sizeX, sizeY], [t.clientWidth - 1, t.clientHeight - 1], boundX, boundY);
+            var fish = fisheyeElements(els, nx, [sizeX, sizeY], scale, boundX, boundY);
             
             var pos = [boundX[1]/2, boundY[1]];
             
@@ -110,7 +110,7 @@
                 initialPosition: pos,
                 snapX: fish.snapX, 
                 snapY: fish.snapY,                 
-                friction: 0.0035,
+                friction: 0.004,
                 update: function(x,y) { fish(boundX[1] - x, boundY[1] - y); }
             });                       
         </script>
