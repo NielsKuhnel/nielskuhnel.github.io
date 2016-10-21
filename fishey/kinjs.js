@@ -252,11 +252,12 @@ function KineticSurface(el, options) {
             || snapRound(pos.y, _this.options.snapY, _this.options.boundY[0]) != pos.y ) {                 
 
             animating = true; 
-            _this.didMove = true;                        
+            _this.didMove = true;                     
             t0 = getNow();
+
             animations.x = endBounceAnimation(pos.x, vx, _this.options.friction, _this.options.boundX[0], _this.options.boundX[1], 1, _this.options.snapX);
             animations.y = endBounceAnimation(pos.y, vy, _this.options.friction, _this.options.boundY[0], _this.options.boundY[1], 1, _this.options.snapY);
-            
+
             rAF(animate);
         }
         
@@ -345,8 +346,9 @@ function KineticSurface(el, options) {
                 
     function frictionAnimation(x0, v0, mu) {
         //x''(t) = -mu x'(t), x'(0) = v0, x(0) = x0                
-                                
-        var xstop = Math.abs(v0) <= V_STOP ? x0 : x0 + (v0 - Math.sign(v0)*V_STOP)/mu;                
+
+        var xstop = Math.abs(v0) <= V_STOP ? x0 : x0 + (v0 - (v0 < 0 ? -1 : 1)*V_STOP)/mu;                
+
         var animation = {
             x: function(t) { return t < 0 ? x0 : t > animation.tstop ? xstop : x0 - (v0 * Math.exp(-mu * t) - v0)/mu; },
             t: function(x) {                        
@@ -365,7 +367,7 @@ function KineticSurface(el, options) {
     
     frictionAnimation.v0FromDestination = function(x0, dest, mu) {
         var dir = dest > x0 ? 1 : -1;                
-        var tol = Math.sign(dir)*V_STOP;                
+        var tol = dir*V_STOP;                
         return mu * (dest - x0) + tol;                
     };
                 
@@ -435,8 +437,7 @@ function KineticSurface(el, options) {
         var stop = f.xstop;                                                
         
         min = typeof(min) == "number" ? min : -10000000;
-        max = typeof(max) == "number" ? max : 10000000;
-                
+        max = typeof(max) == "number" ? max : 10000000;                
         if( stop < min || stop > max ) {    
             var scale = bounceKind == 2 ? 4 : 6;
             var bound = stop < min ? min : max;
