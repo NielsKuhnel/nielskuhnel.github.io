@@ -86,7 +86,8 @@ function KineticSurface(el, options) {
 		 */
 		function onDown(ev) {            
 			var event = normalizeEvent(ev);
-            ev.preventDefault();            
+            ev.preventDefault();       
+    
 			if (!pointer.active && !paused) {
 				_this.didMove = false;               
 				stopAnimation();
