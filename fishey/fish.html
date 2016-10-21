@@ -1,6 +1,6 @@
-<html>        
+<html>
     <head>
-        <meta name="viewport" content="width=720, initial-scale=1, maximum-scale=1">
+        <!-- <meta name="viewport" content="width=720, initial-scale=1, maximum-scale=1"> -->
         <meta http-equiv="cache-control" content="max-age=0" />
         <meta http-equiv="cache-control" content="no-cache" />
         <meta http-equiv="expires" content="0" />
@@ -32,11 +32,20 @@
                 top: 0; left: 0;            
                 height: 400px;
                 width: 400px;
-                position: absolute;  
-                transform-origin: 0 0;
-                backface-visibility: hidden;                
+                position: absolute;                 
+                backface-visibility: hidden;   
+                overflow: hidden;
+            }
+            
+            
+            .fishey-image { 
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 400px;
+                height: 400px;
                 background-repeat: no-repeat;
-                background-position: 50% 50%;                
+                background-position: 50% 50%;
             }
             
             .img0 { background-image: url('img/1.png');}
@@ -75,7 +84,10 @@
             for( var x = 0; x < nx; x++ ) {
                 for( var y = 0; y < ny; y++ ) {
                     var el = document.createElement("div");
-                    el.className = "fishey img" + ((x + y) % 5);                
+                    el.className = "fishey";
+                    var img = document.createElement("div");
+                    img.className = "fishey-image img" + ((x + y) % 5);                
+                    el.appendChild(img);
                     t.appendChild(el);
                     
                     els.push(el);

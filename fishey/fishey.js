@@ -24,7 +24,7 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         for(var x = 0; x <= nx; x++) {            
             var endX = scaleX * fishX((x+1) * stepX);
             endX = x == nx ? Math.ceil(endX) : Math.floor(endX);                       
-            xs[x] = startX;
+            xs[x] = startX + offsetY;
             startX = endX;
         }        
         
@@ -32,11 +32,11 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         for(var y = 0; y <= ny; y++) {
             var endY = scaleY * fishY((y+1) * stepY);
             endY = x == nx ? Math.ceil(endY) : Math.floor(endY);
-            ys[y] = startY;
+            ys[y] = startY + offsetY;
             startY = endY;
         }                         
         
-        var transform = ["translate3d(", 0, "px,", 0, "px,0)"];        
+        var transform = ["translate(", 0, "px,", 0, "px) translateZ(0)"];        
         var ix = 0;
         for(var x = 0; x < nx; x++) {   
             var posx = xs[x];
@@ -52,9 +52,16 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
                     el.style.display = "block";  
                     transform[1] = posx;
                     transform[3] = posy;                   
-                    el.style.transform = transform.join("");    
-                    el.style.width = w + "px";
-                    el.style.height = h + "px";
+                    el.style.transform = transform.join("");                                         
+                    if( w >= maxSize[0] - 1 && h >= maxSize[1] - 1 ) {
+                        el.style.zIndex = 1;
+                        el.style.border = "2px solid #ff0000";
+                    } else {
+                        el.style.border = "";
+                        el.style.zIndex = 0;
+                    }
+                    /*el.style.width = w + "px";
+                    el.style.height = h + "px";*/
                 }                           
             }                            
         }        
@@ -65,7 +72,7 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
         fish.focus(Math.max(0, Math.min(1, p)));
         
         var overflow = p < 0 ? -p : p > 1 ? p - 1 : 0;
-        overflow = .25*overflow*(max - min);
+        overflow = 0*overflow*(max - min);
         //Gets the "d" for the fisheye that gives the desired max width        
         var size = maxSize + overflow;
         var d = (n*size - scale) / (scale - size);                            
