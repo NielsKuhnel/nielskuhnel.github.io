@@ -127,7 +127,6 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
     return updateFunction;
 }
 
-
 function fisheyeScale(d, a, min, max) {                
     var f = (function (x) {
       x = Math.min(max, Math.max(min, x));     

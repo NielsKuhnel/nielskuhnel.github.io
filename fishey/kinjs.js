@@ -2,7 +2,9 @@
 
 var KineticHelpers = {
         getNow: Date.now || (function() { return new Date().getTime();}),
+
         rAF: function(f) { (window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || (function(callback) { window.setTimeout(callback, 1000 / 60);}))(f); },
+
 //Brent's method
         uniroot: function(a,b,c,d,e){ var n,o,p,q,r,f=b,g=c,h=f,i=a(f),j=a(g),k=i;for(d=d||0,e=e||1e3;e-- >0;){if(p=g-f,Math.abs(k)<Math.abs(j)&&(f=g,g=h,h=f,i=j,j=k,k=i),n=1e-15*Math.abs(g)+d/2,o=(h-g)/2,Math.abs(o)<=n||0===j)return g;if(Math.abs(p)>=n&&Math.abs(i)>Math.abs(j)){var s,t,u;t=h-g,f===h?(s=j/i,q=t*s,r=1-s):(r=i/k,s=j/k,u=j/i,q=u*(t*r*(r-s)-(g-f)*(s-1)),r=(r-1)*(s-1)*(u-1)),q>0?r=-r:q=-q,q<.75*t*r-Math.abs(n*r)/2&&q<Math.abs(p*r/2)&&(o=q/r)}Math.abs(o)<n&&(o=o>0?n:-n),f=g,i=j,g+=o,j=a(g),(j>0&&k>0||j<0&&k<0)&&(h=f,k=i)}},
         

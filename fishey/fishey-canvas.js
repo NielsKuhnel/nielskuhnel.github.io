@@ -172,7 +172,6 @@ var roundRect = function (canvas, x, y, w, h, r) {
     return updateFunction;
 }
 
-
 function fisheyeScale(d, a, min, max) {                
     var f = (function (x) {
       x = Math.min(max, Math.max(min, x));     
