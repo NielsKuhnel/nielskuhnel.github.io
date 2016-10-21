@@ -22,6 +22,7 @@ function KineticSurface(el, options) {
         snapY: 1,
         bounce: true,
         stateChanged: null,
+        tap: null, // Tap handler (click and didn't move, f(x,y))
         update: function(x,y) {
             el.style.left = x +"px";
             el.style.top = y + "px";
@@ -136,8 +137,11 @@ function KineticSurface(el, options) {
 		 * Handles up/end events
 		 * @param {Object} ev Normalized event
 		 */
-		function onUp(ev) {
-			var event = normalizeEvent(ev);            
+		function onUp(ev) {            			
+            var event = normalizeEvent(ev);
+            if( !_this.didMove && _this.options.tap ) {                
+                _this.options.tap.call(_this, pointer.current.x, pointer.current.y);
+            };
 			if (pointer.active && event.id === pointer.start.id) {                
 				stopTracking();                
 			}
@@ -200,6 +204,12 @@ function KineticSurface(el, options) {
 
 //{ Kinetics
 
+    _this.moveTo = function(x, y) {        
+        var vx = frictionAnimation.v0FromDestination(position.x, x, _this.options.friction);
+        var vy = frictionAnimation.v0FromDestination(position.y, y, _this.options.friction);        
+        startDecelAnimation(position, vx, vy);
+    }
+
     function snapRound(pos, snap, min) {
         if( typeof(min) == "number" ) {
             pos -= min;
@@ -214,13 +224,12 @@ function KineticSurface(el, options) {
     
         if( Math.abs(vx) < V_MIN ) vx = 0;
         if( Math.abs(vy) < V_MIN ) vy = 0;
-        
-        if(    vx > 0
-            || vy > 0
+                                
+        if(    Math.abs(vx) > 0
+            || Math.abs(vy) > 0
             || !inBounds(pos) 
             || snapRound(pos.x, _this.options.snapX, _this.options.boundX[0]) != pos.x
-            || snapRound(pos.y, _this.options.snapY, _this.options.boundY[0]) != pos.y ) {
-            
+            || snapRound(pos.y, _this.options.snapY, _this.options.boundY[0]) != pos.y ) {                 
             animating = true; 
             _this.didMove = true;            
             
@@ -286,9 +295,9 @@ function KineticSurface(el, options) {
 
 //{ Support functions    
 
-    var getNow = Date.now || (function() { return new Date().getTime();});
-    var rAF = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || (function(callback) { window.setTimeout(callback, 1000 / 60);});        
-    
+    var getNow = KineticSurface.getNow;
+    var rAF = KineticSurface.rAF;        
+        
     var rAFLock = false;
     var rAFThrottled = function(f) {
         if( !rAFLock) {
@@ -299,10 +308,8 @@ function KineticSurface(el, options) {
 //} /Support functions
 
 //{ Animation functions
-    
-    //Brent's method
-    function uniroot(a,b,c,d,e){var n,o,p,q,r,f=b,g=c,h=f,i=a(f),j=a(g),k=i;for(d=d||0,e=e||1e3;e-- >0;){if(p=g-f,Math.abs(k)<Math.abs(j)&&(f=g,g=h,h=f,i=j,j=k,k=i),n=1e-15*Math.abs(g)+d/2,o=(h-g)/2,Math.abs(o)<=n||0===j)return g;if(Math.abs(p)>=n&&Math.abs(i)>Math.abs(j)){var s,t,u;t=h-g,f===h?(s=j/i,q=t*s,r=1-s):(r=i/k,s=j/k,u=j/i,q=u*(t*r*(r-s)-(g-f)*(s-1)),r=(r-1)*(s-1)*(u-1)),q>0?r=-r:q=-q,q<.75*t*r-Math.abs(n*r)/2&&q<Math.abs(p*r/2)&&(o=q/r)}Math.abs(o)<n&&(o=o>0?n:-n),f=g,i=j,g+=o,j=a(g),(j>0&&k>0||j<0&&k<0)&&(h=f,k=i)}}                       
-    
+        
+
     //When movement is less than .1 pixels per (max) frame, then stop animation (otherwise long tails will make animation run for a long time).            
     var FRAME_LENGTH = 1000/60;
     var STOP_TOLERANCE = 0.1;
@@ -311,7 +318,7 @@ function KineticSurface(el, options) {
     
     //When does the position change V_STOP in a frame?
     function findStopTime(x) {
-        return uniroot(function(t) { return Math.abs(
+        return KineticSurface.uniroot(function(t) { return Math.abs(
             //Look at two intervals to avoid finding the top point of a fast animation.
             Math.abs(x(t + FRAME_LENGTH/2) - x(t)) + Math.abs(x(t + FRAME_LENGTH) - x(t + FRAME_LENGTH/2))) - STOP_TOLERANCE; }, 0, 5000, 0.1, 100);
     }
@@ -459,3 +466,22 @@ function KineticSurface(el, options) {
 //} /Animation functions
 
 }
+
+(function() {
+    
+        KineticSurface.getNow = Date.now || (function() { return new Date().getTime();});
+        KineticSurface.rAF = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || (function(callback) { window.setTimeout(callback, 1000 / 60);})
+//Brent's method
+        KineticSurface.uniroot = function(a,b,c,d,e){var n,o,p,q,r,f=b,g=c,h=f,i=a(f),j=a(g),k=i;for(d=d||0,e=e||1e3;e-- >0;){if(p=g-f,Math.abs(k)<Math.abs(j)&&(f=g,g=h,h=f,i=j,j=k,k=i),n=1e-15*Math.abs(g)+d/2,o=(h-g)/2,Math.abs(o)<=n||0===j)return g;if(Math.abs(p)>=n&&Math.abs(i)>Math.abs(j)){var s,t,u;t=h-g,f===h?(s=j/i,q=t*s,r=1-s):(r=i/k,s=j/k,u=j/i,q=u*(t*r*(r-s)-(g-f)*(s-1)),r=(r-1)*(s-1)*(u-1)),q>0?r=-r:q=-q,q<.75*t*r-Math.abs(n*r)/2&&q<Math.abs(p*r/2)&&(o=q/r)}Math.abs(o)<n&&(o=o>0?n:-n),f=g,i=j,g+=o,j=a(g),(j>0&&k>0||j<0&&k<0)&&(h=f,k=i)}}                            
+
+        var prefixes = ['Webkit', 'Moz', 'O', 'ms', 'Khtml'];
+        KineticSurface.prefixCss = function(el, attr) {        
+            for(var i = 0; i < prefixes.length; i++ ) {
+                var prefixed = prefixes[i] + attr.charAt(0).toUpperCase() + attr.slice(1);
+                if (typeof el.style[prefixed] !== 'undefined') {
+                    return prefixed;
+                }
+            }
+            return attr;        
+        }
+})()

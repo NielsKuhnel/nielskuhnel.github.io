@@ -67,8 +67,8 @@
 
             var t = document.getElementById("fish");            
             
-            var nx = 10;
-            var ny = 25;
+            var nx = 7;
+            var ny = 19;
         
             var scale = [t.clientWidth - 4, t.clientHeight - 4];
             var boundX = [0, nx*scale[0]/4];
@@ -101,8 +101,8 @@
             var pos = [boundX[1]/2, boundY[1]];
             
             fish(boundX[1] - pos[0], boundY[1] - pos[1]);
-                                                
             
+                        
             var options;
             var surface = new KineticSurface(t, options = {
                 boundX: boundX, 
@@ -111,6 +111,15 @@
                 snapX: fish.snapX, 
                 snapY: fish.snapY,                 
                 friction: 0.004,
+                tap: function(x, y) {                                        
+                    x = (x + document.body.scrollLeft + document.documentElement.scrollLeft) - t.offsetLeft;
+                    y = (y + document.body.scrollTop + document.documentElement.scrollTop) - t.offsetTop;                     
+                    var px = x/t.offsetWidth;
+                    var py = y/t.offsetHeight;
+                    var mapped = fish.inverse(px, py, true);
+                    
+                    surface.moveTo(boundX[0] + (1 - mapped.x)*(boundX[1]-boundX[0]), boundY[0] + (1-mapped.y)*(boundY[1] - boundY[0]));
+                },
                 update: function(x,y) { fish(boundX[1] - x, boundY[1] - y); }
             });                       
         </script>

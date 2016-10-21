@@ -9,17 +9,19 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
                
     var fishX = fisheyeScale(1, 0, 0, 1);
     var fishY = fisheyeScale(1, 0, 0, 1);
-    
+        
     var scaleX = containerSize[0];
     var scaleY = containerSize[1];
     
     var xs = new Array(nx + 1);
     var ys = new Array(ny + 1);
+
+    var cssTransform = KineticSurface.prefixCss(elements[0], "transform");
     
     
     function updateElements(offsetX, offsetY) {
         var stepX = 1/nx;    
-        var stepY = 1/ny;                      
+        var stepY = 1/ny;                     
         var startX = scaleX * fishX((offsetX) * stepX);                
         for(var x = 0; x <= nx; x++) {            
             var endX = scaleX * fishX((offsetX + x + 1) * stepX);
@@ -53,19 +55,23 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
                     el.style.display = "none";                    
                 } else {
                     el.style.display = "block";  
-                    transform[1] = posx;
-                    transform[3] = posy;                   
-                    el.style.transform = transform.join("");
+                    transform[1] = el._posX = posx;
+                    transform[3] = el._posY = posy;                   
+                    el.style[cssTransform] = transform.join("");
                     
                     var img = el.childNodes[0];
                     transform[1] = -(1 - (w / maxSize[0]))*maxSize[0]/2;                                        
                     transform[3] = -(1 - (h / maxSize[1]))*maxSize[1]/2;
                     
-                    if( sel && x < nx - 1) {
+                    if( sel || (x == nx - 1 && offsetX < 0)) {                        
                         el.style.width = w + "px";                        
+                    } else if( el.style.width ) {
+                        el.style.width = "";
                     }
-                    if( sel && y < ny - 1) {
+                    if( sel || (y == ny - 1 && offsetY < 0)) {
                         el.style.height = h + "px";                        
+                    } else if( el.style.height ) {
+                        el.style.height = "";
                     }
                     
                     if( sel ) {
@@ -75,10 +81,9 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
                     } else {
                         el.style.margin = "0";
                         el.style.border = "";
-                        el.style.zIndex = 0;
-                        el.style.width = el.style.height = "";                                                
+                        el.style.zIndex = 0;                        
                     }                    
-                    img.style.transform = transform.join("");                    
+                    img.style[cssTransform] = transform.join("");                    
                 }                           
             }                            
         }        
@@ -107,6 +112,17 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
     
     updateFunction.snapX = rangeX * 1/(nx-1);
     updateFunction.snapY = rangeY * 1/(ny-1);
+
+    updateFunction.inverse = function(x,y, snap) {          
+        var pos = {x: fishX.inverse(x), y: fishY.inverse(y)};
+        if( snap ) {            
+            var snapX = 1/(nx);
+            var snapY = 1/(ny);
+            pos.x = Math.floor(pos.x/snapX)*snapX + snapX/2;
+            pos.y = Math.floor(pos.y/snapY)*snapY + snapY/2;            
+        }
+        return pos;
+    };
     
     return updateFunction;
 }
@@ -120,6 +136,10 @@ function fisheyeScale(d, a, min, max) {
       if (m == 0) m = max - min;                  
       return (left ? -1 : 1) * m * (d + 1) / (d + (m / Math.abs(x - a))) + a;
     });     
+
+    f.inverse = function(y) {
+        return KineticSurface.uniroot(function(x) { return f(x) - y; }, 0, 1, 0.00001, 100);
+    };
 
     f.setD = function(x) {                        
         d = x;
