@@ -183,7 +183,7 @@ function fisheyeScale(d, a, min, max) {
     });     
 
     f.inverse = function(y) {
-        return KineticSurface.uniroot(function(x) { return f(x) - y; }, 0, 1, 0.00001, 100);
+        return KineticHelpers.uniroot(function(x) { return f(x) - y; }, 0, 1, 0.00001, 100);
     };
 
     f.setD = function(x) {                        

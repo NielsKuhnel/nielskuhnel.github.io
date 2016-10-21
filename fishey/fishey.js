@@ -16,7 +16,7 @@ function fisheyeElements(elements, nx, maxSize, containerSize, boundX, boundY) {
     var xs = new Array(nx + 1);
     var ys = new Array(ny + 1);
 
-    var cssTransform = KineticSurface.prefixCss(elements[0], "transform");
+    var cssTransform = KineticHelpers.prefixCss(elements[0], "transform");
     
     
     function updateElements(offsetX, offsetY) {
@@ -138,7 +138,7 @@ function fisheyeScale(d, a, min, max) {
     });     
 
     f.inverse = function(y) {
-        return KineticSurface.uniroot(function(x) { return f(x) - y; }, 0, 1, 0.00001, 100);
+        return KineticHelpers.uniroot(function(x) { return f(x) - y; }, 0, 1, 0.00001, 100);
     };
 
     f.setD = function(x) {                        
