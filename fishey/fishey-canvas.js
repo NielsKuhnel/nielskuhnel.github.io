@@ -91,18 +91,19 @@ function fisheyeElementsCanvas(canvas, images, nx, maxSize, containerSize, bound
                     
                     var tw = Math.min(w, maxScale*img.width);
                     var th = Math.min(h, maxScale*img.height);
-                    
-                    //ctx.globalAlpha = 0.5;
+                                   
+                    var alpha = Math.pow(w/maxSize[0] * h/maxSize[1], 1/10);
+                    ctx.globalAlpha = alpha;
                     ctx.drawImage(img,
                         (img.width - tw/maxScale)/2, (img.height - th/maxScale)/2, tw/maxScale, th/maxScale,
                         posx + (w - tw)/2, posy + (h-th)/2,                        
                         tw, th
                     );
-                    //ctx.globalAlpha = 1;
+                    ctx.globalAlpha = 1;
 
-                    ctx.font = "12px serif";
+                    /*ctx.font = "12px serif";
                     ctx.textBaseline = "top";
-                    //ctx.fillText([maxScale*img.width, tw], posx + (w - tw)/2, posy + (h-th)/2);
+                    ctx.fillText(100*alpha + "%", posx + (w - tw)/2, posy + (h-th)/2);*/
 
                     if( sel ) {
                         ctx.beginPath();
