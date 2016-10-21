@@ -1,6 +1,5 @@
 "use strict";
 
-
 var KineticHelpers = {
         getNow: Date.now || (function() { return new Date().getTime();}),
         rAF: function(f) { (window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || (function(callback) { window.setTimeout(callback, 1000 / 60);}))(f); },
