@@ -73,9 +73,10 @@
                     tap: function(x, y) {                                        
                         x = (x + document.body.scrollLeft + document.documentElement.scrollLeft) - canvas.offsetLeft;
                         y = (y + document.body.scrollTop + document.documentElement.scrollTop) - canvas.offsetTop;                     
-                        var px = x < 10 ? 0 : x > canvas.offsetWidth - 10 ? 1 : x/canvas.offsetWidth;
-                        var py = y < 10 ? 0 : y > canvas.offsetHeight - 10 ? 1 : y/canvas.offsetHeight;                        
+                        var px = x < 15 ? 0 : x > canvas.offsetWidth - 15 ? 1 : x/canvas.offsetWidth;
+                        var py = y < 15 ? 0 : y > canvas.offsetHeight - 15 ? 1 : y/canvas.offsetHeight;                        
                         var mapped = fish.inverse(px, py, true);
+
                         surface.moveTo(boundX[0] + (1 - mapped.x)*(boundX[1]-boundX[0]), boundY[0] + (1-mapped.y)*(boundY[1] - boundY[0]));
                     },
                     update: function(x,y) { fish(boundX[1] - x, boundY[1] - y); }
