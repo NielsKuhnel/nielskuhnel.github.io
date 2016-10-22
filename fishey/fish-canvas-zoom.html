@@ -76,7 +76,7 @@
                         var py = y < 15 ? 0 : y > canvas.offsetHeight - 15 ? 1 : y/canvas.offsetHeight;                        
                         var mapped = fish.inverse(px, py, true);
 
-                        surface.moveTo(boundX[0] + (1 - mapped.x)*(boundX[1]-boundX[0]), boundY[0] + (1-mapped.y)*(boundY[1] - boundY[0]));
+                        surface.moveTo(boundX[0] + (mapped.x)*(boundX[1]-boundX[0]), boundY[0] + (mapped.y)*(boundY[1] - boundY[0]));
                     },
                     update: function(x,y) { fish(x, y); }
                 });      
