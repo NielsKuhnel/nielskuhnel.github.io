@@ -33,8 +33,8 @@
             document.addEventListener("DOMContentLoaded", function(event) {                    
                 var canvas = document.getElementById("fish");            
                 
-                var nx = 13;
-                var ny = 30;
+                var nx = 7;
+                var ny = 19;
             
                 var scale = [canvas.clientWidth, canvas.clientHeight];
                 var boundX = [0, nx*scale[0]/4];
@@ -58,10 +58,9 @@
                 
                 var fish = fisheyeElementsCanvas(canvas, images, nx, [sizeX, sizeY], scale, boundX, boundY, zoom);
                 
-                var pos = [boundX[1]/2, boundY[1]];
+                var pos = [boundX[1]/2, 0];
                 
-                fish(boundX[1] - pos[0], boundY[1] - pos[1]);                    
-                            
+                fish(pos[0], pos[1]);                            
                 var options;
                 var surface = new KineticSurface(canvas, options = {
                     boundX: boundX, 
@@ -79,7 +78,7 @@
 
                         surface.moveTo(boundX[0] + (1 - mapped.x)*(boundX[1]-boundX[0]), boundY[0] + (1-mapped.y)*(boundY[1] - boundY[0]));
                     },
-                    update: function(x,y) { fish(boundX[1] - x, boundY[1] - y); }
+                    update: function(x,y) { fish(x, y); }
                 });      
                                     
             });                
