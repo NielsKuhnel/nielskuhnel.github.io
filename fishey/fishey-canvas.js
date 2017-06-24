@@ -87,7 +87,7 @@ function fisheyeElementsCanvas(canvas, images, nx, maxSize, containerSize, bound
                 if (w < 1 && h < 1) {
 
                 } else {
-                    var maxScale = Math.min(Math.min(1, maxSize[0] / img.width), Math.min(1, maxSize[1] / img.height));
+                    var maxScale = Math.min(Math.min(1, (maxSize[0] + 0) / img.width), Math.min(1, maxSize[1] / img.height));
 
                     var tw = Math.min(w, maxScale * img.width);
                     var th = Math.min(h, maxScale * img.height);
@@ -122,6 +122,7 @@ function fisheyeElementsCanvas(canvas, images, nx, maxSize, containerSize, bound
     var roundRect = function (canvas, x, y, w, h, r) {
         if (w < 2 * r) r = w / 2;
         if (h < 2 * r) r = h / 2;
+        if (h <= 0 || w <= 0) return;
         canvas.beginPath();
         canvas.moveTo(x + r, y);
         canvas.arcTo(x + w, y, x + w, y + h, r);
@@ -135,16 +136,27 @@ function fisheyeElementsCanvas(canvas, images, nx, maxSize, containerSize, bound
     //}
 
     var updateFish = function (pos, maxSize, min, max, fish, n, scale, log) {
-        var p = (pos - min) / (max - min);
-        fish.focus(Math.max(0, Math.min(1, p)));
 
-        var overflow = p < 0 ? -p : p > 1 ? p - 1 : 0;
+        var p, overflow;
+        if (min >= max) {
+            //One row
+            p = 0.25*pos/maxSize;
+            overflow = p < 0 ? -p*.5 : p;
+        } else {
+            p = (pos - min) / (max - min);
 
-        //Gets the "d" for the fisheye that gives the desired max width        
-        var size = maxSize;// + overflow;
-        var d = (n * size - scale) / (scale - size);
-        fish.setD(d, n, scale);
+            fish.focus(Math.max(0, Math.min(1, p)));
+            overflow = p < 0 ? -p : p > 1 ? p - 1 : 0;
 
+            //Gets the "d" for the fisheye that gives the desired max width        
+            var size = maxSize;// + overflow;
+            // var d = scale-size == 0 ? 0 : (n*size - scale) / (scale - size);        
+            var d = (n * size - scale) / (scale - size);
+            if (Number.isNaN(d) || d < 0) {
+                d = 1;
+            }
+            fish.setD(d, n, scale);
+        }
         return (p < 0 ? 1 : -1) * 4 * overflow;
     }
 
